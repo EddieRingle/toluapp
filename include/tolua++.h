@@ -20,7 +20,7 @@
 #define TOLUA_API extern
 #endif
 
-#define TOLUA_VERSION "tolua++-1.0.8pre1"
+#define TOLUA_VERSION "tolua++-1.0.8pre2"
 
 #ifdef __cplusplus
 extern "C" {
