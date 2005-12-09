@@ -143,7 +143,6 @@ static int class_index_event (lua_State* L)
 		#ifdef LUA_VERSION_NUM /* new macro on version 5.1 */
 		lua_getfenv(L,1);
 		if (!lua_rawequal(L, -1, TOLUA_NOPEER)) {
-
 			lua_pushvalue(L, 2); /* key */
 			lua_gettable(L, -2); /* on lua 5.1, we trade the "tolua_peers" lookup for a gettable call */
 			if (!lua_isnil(L, -1))

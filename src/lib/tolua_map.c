@@ -221,12 +221,7 @@ static int tolua_bnd_cast (lua_State* L)
 
 	void* v;
 	const char* s;
-	if (lua_getmetatable(L, 1)) {
-		/* lua_pop(L, 1); */
-		v = tolua_tousertype(L,1,NULL);
-	} else {
-		v = tolua_touserdata(L, 1, NULL);
-	};
+	v = tolua_touserdata(L, 1, NULL);
 
 	s = tolua_tostring(L,2,NULL);
 	if (v && s)
@@ -249,6 +244,26 @@ static int tolua_bnd_inherit (lua_State* L) {
 	return 0;
 };
 
+#ifdef LUA_VERSION_NUM /* lua 5.1 */
+static int tolua_bnd_setpeer(lua_State* L) {
+
+	/* stack: userdata, table */
+	if (!lua_isuserdata(L, -2)) {
+		lua_pushstring(L, "Invalid argument #1 to setpeer: userdata expected.");
+		lua_error(L);
+	};
+	lua_setfenv(L, -2);
+	
+	return 0;
+};
+
+static int tolua_bnd_getpeer(lua_State* L) {
+
+	/* stack: userdata */
+	lua_getfenv(L, -1);
+	return 1;
+};
+#endif
 
 TOLUA_API void tolua_open (lua_State* L)
 {
@@ -290,6 +305,11 @@ TOLUA_API void tolua_open (lua_State* L)
   tolua_function(L,"releaseownership",tolua_bnd_releaseownership);
   tolua_function(L,"cast",tolua_bnd_cast);
   tolua_function(L,"inherit", tolua_bnd_inherit);
+  #ifdef LUA_VERSION_NUM /* lua 5.1 */
+  tolua_function(L, "setpeer", tolua_bnd_setpeer);
+  tolua_function(L, "getpeer", tolua_bnd_getpeer);
+  #endif
+  
   tolua_endmodule(L);
   tolua_endmodule(L);
  }
