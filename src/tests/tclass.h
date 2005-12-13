@@ -68,6 +68,8 @@ inline bool Tst_is_aa (Tst_A::Tst_AA* obj)
 }
 
 class Tst_E {
+	void* ptr;
+
 public:
 	enum Pete {
 		ONE,
@@ -85,6 +87,12 @@ public:
 	void get_pointer(void* a) {};
 
 	Tst_A a;
+
+	void set_ptr(void* p_ptr) {
+		printf("this is %p, ptr is %p\n", this, p_ptr);
+		ptr = p_ptr;
+	};
+	void* get_ptr() {return ptr;};
 
 	Tst_E(int) {};
 };

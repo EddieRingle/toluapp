@@ -96,6 +96,10 @@ print(tostring(Test.B.__call))
 print(tostring(Test.B.__call(Test.B)))
 print(tolua.type(b))
 
+e:set_ptr(e)
+local ve = tolua.cast(e:get_ptr(), "Test::Tst_E")
+ve:set_ptr(ve)
+
 print"1"
 Test.A.pete = {}
 print"2"

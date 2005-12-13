@@ -44,6 +44,12 @@ public:
 	void pars(int a=0xa, int b=GetNumber(GetNumber(1,2)));
 	void get_pointer(void* a=NULL);
 
+	void set_ptr(void* p_ptr) {
+		printf("this is %p, ptr is %p\n", this, p_ptr);
+		ptr = p_ptr;
+	};
+	void* get_ptr() {return ptr;};
+
 	Tst_A a;
 	Tst_E(int);
 	//~Tst_E();
