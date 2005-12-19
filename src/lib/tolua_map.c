@@ -269,6 +269,8 @@ static int tolua_bnd_getpeer(lua_State* L) {
 };
 #endif
 
+static int class_gc_event (lua_State* L);
+
 TOLUA_API void tolua_open (lua_State* L)
 {
  int top = lua_gettop(L);
@@ -298,6 +300,15 @@ TOLUA_API void tolua_open (lua_State* L)
   lua_pushstring(L,"tolua_super"); lua_newtable(L); lua_rawset(L,LUA_REGISTRYINDEX);
   lua_pushstring(L,"tolua_gc"); lua_newtable(L);lua_rawset(L,LUA_REGISTRYINDEX);
 
+  /* create gc_event closure */
+  lua_pushstring(L, "tolua_gc_event");
+  lua_pushstring(L, "tolua_gc");
+  lua_rawget(L, LUA_REGISTRYINDEX);
+  lua_pushstring(L, "tolua_super");
+  lua_rawget(L, LUA_REGISTRYINDEX);
+  lua_pushcclosure(L, class_gc_event, 2);
+  lua_rawset(L, LUA_REGISTRYINDEX);
+  
   tolua_newmetatable(L,"tolua_commonclass");
 
   tolua_module(L,NULL,0);

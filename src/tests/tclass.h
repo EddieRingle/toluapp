@@ -34,6 +34,8 @@ public:
 
 	void set_number(int p_number) { number = p_number;};
 	int get_number() {return number*2;};
+	
+	virtual ~Tst_A() {};
 };
 
 class Tst_B : public Tst_A
@@ -45,6 +47,8 @@ public:
 
 	static Tst_A* create() {return new Tst_B;};
 	static void* create_void() {return new Tst_B;};
+	
+	virtual ~Tst_B() {};
 };
 
 class Tst_C : public Tst_B

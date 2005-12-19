@@ -38,20 +38,15 @@ assert(Test.is_aa(bb) == true)
 
 -- test ownershipping handling
 -- should delete objects: 6 7 8 9 10 (it may vary!)
-_ = [[
 local set = {}
 for i=1,10 do
  local c = Test.luaC:new(i)
 	if i>5 then
 		tolua.takeownership(c)
 	end
-	set[i] = c
+	--set[i] = c
 end
 
-for i=1,5 do
- tolua.releaseownership(set[i])
-end
---]]
 
 
 e = Test.B:new_local()

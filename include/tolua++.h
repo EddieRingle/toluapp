@@ -134,7 +134,7 @@ static inline const char* tolua_tocppstring (lua_State* L, int narg, const char*
 #define tolua_tocppstring tolua_tostring
 #endif
 
-TOLUA_API int tolua_fast_isa(lua_State *L, int mt_indexa, int mt_indexb);
+TOLUA_API int tolua_fast_isa(lua_State *L, int mt_indexa, int mt_indexb, int super_index);
 
 #ifdef __cplusplus
 }
