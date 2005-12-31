@@ -577,7 +577,17 @@ function classContainer:doparse (s)
 		 -- try inline
    b,e,decl,kind,arg,const = strfind(s,"^%s*([_%w][_%w%s%*&:<>,]-%s+operator)%s*([^%s][^%s]*)%s*(%b())%s*(c?o?n?s?t?)[%s\n]*%b{}%s*;?%s*")
   end
-		if b then
+  if not b then
+  	-- try cast operator
+  	b,e,decl,kind,arg,const = strfind(s, "^%s*(operator)%s+([%w_:%d<>%*%&%s]+)%s*(%b())%s*(c?o?n?s?t?)");
+  	if b then
+  		local _,ie = string.find(s, "^%s*%b{}", e+1)
+  		if ie then
+  			e = ie
+  		end
+  	end
+  end
+  if b then
    _curr_code = strsub(s,b,e)
    Operator(decl,kind,arg,const)
    return strsub(s,e+1)
