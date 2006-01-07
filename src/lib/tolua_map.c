@@ -27,18 +27,19 @@
 */
 static int tolua_newmetatable (lua_State* L, char* name)
 {
- int r = luaL_newmetatable(L,name);
- #ifdef LUA_VERSION_NUM /* only lua 5.1 */
- if (r) {
-	 lua_pushvalue(L, -1);
-	 lua_pushstring(L, name);
-	 lua_settable(L, LUA_REGISTRYINDEX); /* reg[mt] = type_name */
- };
- #endif
+	int r = luaL_newmetatable(L,name);
+
+	#ifdef LUA_VERSION_NUM /* only lua 5.1 */
+	if (r) {
+		lua_pushvalue(L, -1);
+		lua_pushstring(L, name);
+		lua_settable(L, LUA_REGISTRYINDEX); /* reg[mt] = type_name */
+	};
+	#endif
 
 	if (r)
-	 tolua_classevents(L); /* set meta events */
- lua_pop(L,1);
+		tolua_classevents(L); /* set meta events */
+	lua_pop(L,1);
 	return r;
 }
 
@@ -226,7 +227,7 @@ static int tolua_bnd_cast (lua_State* L)
 	} else {
 		v = tolua_tousertype(L, 1, 0);
 	};
-	
+
 	s = tolua_tostring(L,2,NULL);
 	if (v && s)
 	 tolua_pushusertype(L,v,s);
@@ -257,7 +258,7 @@ static int tolua_bnd_setpeer(lua_State* L) {
 		lua_error(L);
 	};
 	lua_setfenv(L, -2);
-	
+
 	return 0;
 };
 
@@ -308,7 +309,7 @@ TOLUA_API void tolua_open (lua_State* L)
   lua_rawget(L, LUA_REGISTRYINDEX);
   lua_pushcclosure(L, class_gc_event, 2);
   lua_rawset(L, LUA_REGISTRYINDEX);
-  
+
   tolua_newmetatable(L,"tolua_commonclass");
 
   tolua_module(L,NULL,0);
@@ -324,7 +325,7 @@ TOLUA_API void tolua_open (lua_State* L)
   tolua_function(L, "setpeer", tolua_bnd_setpeer);
   tolua_function(L, "getpeer", tolua_bnd_getpeer);
   #endif
-  
+
   tolua_endmodule(L);
   tolua_endmodule(L);
  }

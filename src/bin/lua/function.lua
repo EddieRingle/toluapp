@@ -232,7 +232,11 @@ function classFunction:supcode (local_constructor)
    nret = nret + 1
    local t,ct = isbasic(self.type)
    if t then
-    output('   tolua_push'..t..'(tolua_S,(',ct,')tolua_ret);')
+   	if self.cast_operator and _basic_raw_push[t] then
+		output('   ',_basic_raw_push[t],'(tolua_S,(',ct,')tolua_ret);')
+   	else
+	    output('   tolua_push'..t..'(tolua_S,(',ct,')tolua_ret);')
+	end
    else
 			 t = self.type
 			 new_t = string.gsub(t, "const%s+", "")
