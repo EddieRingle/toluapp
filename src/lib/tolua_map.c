@@ -270,7 +270,7 @@ static int tolua_bnd_getpeer(lua_State* L) {
 };
 #endif
 
-static int class_gc_event (lua_State* L);
+/* static int class_gc_event (lua_State* L); */
 
 TOLUA_API void tolua_open (lua_State* L)
 {

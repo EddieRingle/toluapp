@@ -14,6 +14,7 @@ else:
 ## setting up the command line options
 opts = Options([options_file, 'custom.py'], ARGUMENTS)
 opts.Add('CC', 'The C compiler.')
+opts.Add('CXX', 'The C++ compiler (for the tests)')
 opts.Add('CCFLAGS', 'Flags for the compiler.', ['-O2', '-Wall'])
 opts.Add('LINK', 'The linker.')
 opts.Add('LINKFLAGS', 'Linker flags.', [])

@@ -124,6 +124,8 @@ TOLUA_API int tolua_getfieldboolean (lua_State* L, int lo, int index, int def);
 
 TOLUA_API void tolua_dobuffer(lua_State* L, char* B, unsigned int size, const char* name);
 
+TOLUA_API int class_gc_event (lua_State* L);
+
 #ifdef __cplusplus
 static inline const char* tolua_tocppstring (lua_State* L, int narg, const char* def) {
 

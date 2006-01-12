@@ -1,3 +1,22 @@
+if not Test then
+	local loadlib
+	if not package then
+		loadlib = _G['loadlib']
+	else
+		loadlib = package.loadlib
+	end
+	f, e, eo = loadlib("./libtclass.so", "luaopen_tclass")
+	if f then
+		f()
+	else
+		print(eo, e)
+		os.exit()
+	end
+end
+
+a = {}
+rawset(a, ".c_instance", "something")
+
 function hello()
 
 	print("hello world")
@@ -6,10 +25,11 @@ end
 rawset(Test.B, "hello", hello)
 
 -- type convertion tests
-print(Test.A)
-assert(tolua.type(Test.A.last) == 'Test::Tst_A') -- first time the object is mapped
-assert(tolua.type(Test.B.last) == 'Test::Tst_B') -- type convertion to specialized type
-assert(tolua.type(Test.A.last) == 'Test::Tst_B') -- no convertion: obj already mapped as B
+--print(Test.A)
+--print(tolua.type(Test.A.last))
+--assert(tolua.type(Test.A.last) == 'Test::Tst_A') -- first time the object is mapped
+--assert(tolua.type(Test.B.last) == 'Test::Tst_B') -- type convertion to specialized type
+--assert(tolua.type(Test.A.last) == 'Test::Tst_B') -- no convertion: obj already mapped as B
 
 
 local a = Test.A:new()
@@ -100,6 +120,12 @@ Test.A.pete = {}
 print"2"
 table.insert(Test.A.pete, a)
 print"3"
+
+
+for i=1,100000 do
+	la = {}
+	tolua.inherit(la, a)
+end
 
 print("Class test OK")
 

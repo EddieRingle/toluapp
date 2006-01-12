@@ -3,7 +3,16 @@ env_tests = env.Copy()
 
 env_tests.LuaBinding('tclassbind.cpp', 'tclass.pkg', 'tclass', use_own=1)
 
-test_class = env_tests.Program('tclass', ['tclass.cpp', 'tclassbind.cpp'],
-			LIBS=env['LIBS']+['$tolua_lib'], )
+env_tests.Append(CXXFLAGS='-DTOLUA_API="extern \\\"C\\\""')
+
+test_class_so = env_tests.SharedLibrary('tclass', ['tclassbind.cpp'],
+			LIBS=['$tolua_lib']+env['LIBS'], )
+
+env_tests.Append(LIBPATH=".")
+
+test_class = env_tests.Program('tclass', ['tclass.cpp'],
+			LIBS=env['LIBS']+['tclass']+['$tolua_lib'], )
+
+
 
 env.test_targets = [test_class]
