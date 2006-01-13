@@ -13,5 +13,5 @@ if env['build_failsafe']:
 else:
 	src += ['toluabind.c']
 
-env.bin_target = env.Program('#/bin/$tolua_bin', src, LIBS = ['$tolua_lib'] + env['LIBS'])
+env.bin_target = env.Program('#/bin/'+env['tolua_bin'], src, LIBS = ['$tolua_lib'] + env['LIBS'])
 

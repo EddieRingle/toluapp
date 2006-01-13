@@ -4,15 +4,14 @@ env = Environment()
 
 options_file = None
 if sys.platform == 'linux2':
-	options_file = "config_linux.py"
+	options_file = "linux"
 
 elif 'msvc' in env['TOOLS']:
-	options_file = "config_msvc.py"
+	options_file = "msvc"
 else:
-	options_file = "config_posix.py"
+	options_file = "posix"
 
-## setting up the command line options
-opts = Options([options_file, 'custom.py'], ARGUMENTS)
+opts = Options(["config_"+options_file+".py", "custom.py", "custom_"+options_file+".py"], ARGUMENTS)
 opts.Add('CC', 'The C compiler.')
 opts.Add('CXX', 'The C++ compiler (for the tests)')
 opts.Add('CCFLAGS', 'Flags for the compiler.', ['-O2', '-Wall'])
@@ -38,6 +37,8 @@ def save_config(target, source, env):
 
 cust = env.Command('custom.py', [], save_config)
 env.Alias('configure', [cust])
+
+
 
 env['build_dev'] = int(env['build_dev'])
 
