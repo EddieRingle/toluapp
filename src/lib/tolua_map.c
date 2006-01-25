@@ -481,6 +481,27 @@ TOLUA_API void tolua_module (lua_State* L, char* name, int hasvar)
 }
 #endif
 
+static void push_collector(lua_State* L, const char* type, lua_CFunction col) {
+
+	/* push collector function, but only if it's not NULL, or if there's no
+	   collector already */
+	luaL_getmetatable(L,type);
+	lua_pushstring(L,".collector");
+	if (!col) {
+		lua_pushvalue(L, -1);
+		lua_rawget(L, -3);
+		if (!lua_isnil(L, -1)) {
+			lua_pop(L, 3);
+			return;
+		};
+		lua_pop(L, 1);
+	};
+	lua_pushcfunction(L,col);
+
+	lua_rawset(L,-3);
+	lua_pop(L, 1);
+};
+
 /* Map C class
 	* It maps a C class, setting the appropriate inheritance and super classes.
 */
@@ -498,20 +519,30 @@ TOLUA_API void tolua_cclass (lua_State* L, char* lname, char* name, char* base, 
 	mapsuper(L,name,base);
 
 	lua_pushstring(L,lname);
+	
+	push_collector(L, name, col);
+	/*
 	luaL_getmetatable(L,name);
 	lua_pushstring(L,".collector");
 	lua_pushcfunction(L,col);
 
-	lua_rawset(L,-3);              /* store collector function into metatable */
+	lua_rawset(L,-3);
+	*/
+	
+	luaL_getmetatable(L,name);
 	lua_rawset(L,-3);              /* assign class metatable to module */
 
 	/* now we also need to store the collector table for the const
 	   instances of the class */
+	push_collector(L, name, col);
+	/*
 	luaL_getmetatable(L,cname);
 	lua_pushstring(L,".collector");
 	lua_pushcfunction(L,col);
 	lua_rawset(L,-3);
-	lua_pop(L,1);                  /* get rid of metatable for const object */
+	lua_pop(L,1);
+	*/
+	
 
 }
 
