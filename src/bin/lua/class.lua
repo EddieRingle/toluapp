@@ -146,7 +146,8 @@ function Class (n,p,b)
 	end
 
 	-- check for template
-	local t,_,T,I = string.find(b, "^{%s*TEMPLATE_BIND%s*%(+%s*\"?([^\",]*)\"?%s*,%s*([^%)]*)%s*%)+")
+	b = string.gsub(b, "^{%s*TEMPLATE_BIND", "{\nTOLUA_TEMPLATE_BIND")
+	local t,_,T,I = string.find(b, "^{%s*TOLUA_TEMPLATE_BIND%s*%(+%s*\"?([^\",]*)\"?%s*,%s*([^%)]*)%s*%)+")
 	if t then
 
 		-- remove quotes
@@ -155,7 +156,7 @@ function Class (n,p,b)
 		-- get type list
 		local types = split_c_tokens(I, ",")
 		-- remove TEMPLATE_BIND line
-		local bs = string.gsub(b, "^{%s*TEMPLATE_BIND[^\n]*\n", "{\n")
+		local bs = string.gsub(b, "^{%s*TOLUA_TEMPLATE_BIND[^\n]*\n", "{\n")
 
 		-- replace
 		for i =1 , types.n do
