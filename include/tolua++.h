@@ -20,7 +20,7 @@
 #define TOLUA_API extern
 #endif
 
-#define TOLUA_VERSION "tolua++-1.0.8pre4"
+#define TOLUA_VERSION "tolua++-1.0.90"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +30,7 @@ extern "C" {
 #define tolua_iscppstring	tolua_isstring
 
 #define TEMPLATE_BIND(p)
+#define TOLUA_TEMPLATE_BIND(p)
 #define TOLUA_PROTECTED_DESTRUCTOR
 #define TOLUA_PROPERTY_TYPE(p)
 

@@ -257,6 +257,12 @@ static int tolua_bnd_setpeer(lua_State* L) {
 		lua_pushstring(L, "Invalid argument #1 to setpeer: userdata expected.");
 		lua_error(L);
 	};
+	
+	if (lua_isnil(L, -1)) {
+
+		lua_pop(L, 1);
+		lua_pushvalue(L, TOLUA_NOPEER);
+	};
 	lua_setfenv(L, -2);
 
 	return 0;
@@ -266,6 +272,10 @@ static int tolua_bnd_getpeer(lua_State* L) {
 
 	/* stack: userdata */
 	lua_getfenv(L, -1);
+	if (lua_rawequal(L, -1, TOLUA_NOPEER)) {
+		lua_pop(L, 1);
+		lua_pushnil(L);
+	};
 	return 1;
 };
 #endif
