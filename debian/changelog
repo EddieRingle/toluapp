@@ -1,3 +1,12 @@
+tolua++ (1.0.92pre1-1) unstable; urgency=low
+
+  * fixed array bound check bug
+  * moved parsing of 'extern' keyword to the parser
+  * fixed bug in module name generation from package filename
+  * added -E command line option
+
+ -- Ariel Manzur <puntob@gmail.com>  Mon, 13 Mar 2006 19:28:14 -0300
+
 tolua++ (1.0.8pre3-1) unstable; urgency=low
 
   * changed tolua_touserdata

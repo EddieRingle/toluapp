@@ -77,7 +77,7 @@ function classPackage:preprocess ()
  self.code = gsub(self.code,"\2","%*/")
  self.code = gsub(self.code,"%s*@%s*","@") -- eliminate spaces beside @
  self.code = gsub(self.code,"%s?inline(%s)","%1") -- eliminate 'inline' keyword
- self.code = gsub(self.code,"%s?extern(%s)","%1") -- eliminate 'extern' keyword
+ --self.code = gsub(self.code,"%s?extern(%s)","%1") -- eliminate 'extern' keyword
  --self.code = gsub(self.code,"%s?virtual(%s)","%1") -- eliminate 'virtual' keyword
  --self.code = gsub(self.code,"public:","") -- eliminate 'public:' keyword
  self.code = gsub(self.code,"([^%w_])void%s*%*","%1_userdata ") -- substitute 'void*'
