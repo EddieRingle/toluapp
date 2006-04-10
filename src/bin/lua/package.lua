@@ -149,6 +149,10 @@ function classPackage:preamble ()
  output('static void tolua_reg_types (lua_State* tolua_S)')
  output('{')
  foreach(_usertype,function(n,v) output(' tolua_usertype(tolua_S,"',v,'");') end)
+	if flags.t then
+		output("#ifndef tolua_typeid\n#define tolua_typeid(L,TI,T)\n#endif\n")
+		foreach(_usertype,function(n,v) output(' tolua_typeid(tolua_S,typeid(',v,').name(), "',v,'");') end)
+	end
  output('}')
  output('\n')
 end

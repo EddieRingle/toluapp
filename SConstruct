@@ -69,7 +69,7 @@ def pkg_scan_dep(self, target, source):
 				self.pkg_scan_dep(target, dep.groups()[0])
 
 
-def make_tolua_code(self, target, source, pkgname = None, use_own = None):
+def make_tolua_code(self, target, source, pkgname = None, use_own = None, use_typeid=None):
 
 	ptarget = Dir('.').path + '/' + target
 	psource = Dir('.').path + '/' + source
@@ -89,6 +89,9 @@ def make_tolua_code(self, target, source, pkgname = None, use_own = None):
 		pkgname = ' -n '+pkgname
 	else:
 		pkgname = ''
+
+	if use_typeid:
+		tolua = tolua+' -t'
 
 	comando = tolua + ' -C -H ' + pheader + ' -o ' + ptarget + pkgname + ' ' + psource
 	self.Command(target, source, comando)
