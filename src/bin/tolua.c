@@ -66,7 +66,7 @@ static void setfield (lua_State* L, int table, char* f, char* v)
 static void add_extra (lua_State* L, char* value) {
 	int len;
 	lua_getglobal(L, "_extra_parameters");
-	len = lua_objlen(L, -1);
+	len = luaL_getn(L, -1);
 	lua_pushstring(L, value);
 	lua_rawseti(L, -2, len+1);
 	lua_pop(L, 1);
