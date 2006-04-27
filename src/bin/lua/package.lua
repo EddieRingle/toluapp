@@ -150,8 +150,8 @@ function classPackage:preamble ()
  output('{')
  foreach(_usertype,function(n,v) output(' tolua_usertype(tolua_S,"',v,'");') end)
 	if flags.t then
-		output("#ifndef tolua_typeid\n#define tolua_typeid(L,TI,T)\n#endif\n")
-		foreach(_usertype,function(n,v) output(' tolua_typeid(tolua_S,typeid(',v,').name(), "',v,'");') end)
+		output("#ifndef Mtolua_typeid\n#define Mtolua_typeid(L,TI,T)\n#endif\n")
+		foreach(_usertype,function(n,v) output(' Mtolua_typeid(tolua_S,typeid(',v,'), "',v,'");') end)
 	end
  output('}')
  output('\n')
