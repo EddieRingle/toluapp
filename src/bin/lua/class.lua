@@ -30,6 +30,7 @@ setmetatable(classClass,classContainer)
 
 -- register class
 function classClass:register (pre)
+
 	if not self:check_public_access() then
 		return
 	end
@@ -63,7 +64,7 @@ end
 
 -- return collection requirement
 function classClass:requirecollection (t)
-	if self.flags.protected_destructor then
+	if self.flags.protected_destructor or (not self:check_public_access()) then
 		return false
 	end
  push(self)
