@@ -501,7 +501,7 @@ function classContainer:doparse (s)
  		return strsub(s, e+1)
  	end
  end
-	
+
  -- try 'virtual' keyworkd
  do
  	local b,e = string.find(s, "^%s*virtual%s+")
@@ -743,7 +743,7 @@ end
 
 function classContainer:parse (s)
 
-	self.curr_member_access = nil
+	--self.curr_member_access = nil
 
  while s ~= '' do
   s = self:doparse(s)
