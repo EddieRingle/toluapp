@@ -111,6 +111,7 @@ end
 end
 
 function warning (msg)
+ if flags.q then return end
  local out = _OUTPUT
  _OUTPUT = _STDERR
  write("\n** tolua warning: "..msg..".\n\n")
