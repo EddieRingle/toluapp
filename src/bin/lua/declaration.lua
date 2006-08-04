@@ -226,7 +226,8 @@ function classDeclaration:outchecktype (narg)
  elseif t then
 	return 'tolua_is'..t..'(tolua_S,'..narg..','..def..',&tolua_err)'
  else
-  return 'tolua_isusertype(tolua_S,'..narg..',"'..self.type..'",'..def..',&tolua_err)'
+  local is_func = get_is_function(self.type)
+  return is_func..'(tolua_S,'..narg..',"'..self.type..'",'..def..',&tolua_err)'
  end
 end
 
@@ -283,9 +284,10 @@ function classDeclaration:builddeclaration (narg, cplusplus)
 		end
 	end
 	if t then
-	line = concatparam(line,'tolua_to'..t,'(tolua_S,',narg,',',def,'));')
+		line = concatparam(line,'tolua_to'..t,'(tolua_S,',narg,',',def,'));')
 	else
-	line = concatparam(line,'tolua_tousertype(tolua_S,',narg,',',def,'));')
+		local to_func = get_to_function(type)
+		line = concatparam(line,to_func..'(tolua_S,',narg,',',def,'));')
 	end
   end
  end
@@ -314,9 +316,9 @@ function classDeclaration:getarray (narg)
   local def; if self.def~='' then def=1 else def=0 end
 		local t = isbasic(type)
 		if (t) then
-   output('   if (!tolua_is'..t..'array(tolua_S,',narg,',',self.dim,',',def,',&tolua_err))')
+		   output('   if (!tolua_is'..t..'array(tolua_S,',narg,',',self.dim,',',def,',&tolua_err))')
 		else
-   output('   if (!tolua_isusertypearray(tolua_S,',narg,',"',type,'",',self.dim,',',def,',&tolua_err))')
+		   output('   if (!tolua_isusertypearray(tolua_S,',narg,',"',type,'",',self.dim,',',def,',&tolua_err))')
 		end
   output('    goto tolua_lerror;')
   output('   else\n')
@@ -404,7 +406,8 @@ function classDeclaration:retvalue ()
   if t and t~='' then
    output('   tolua_push'..t..'(tolua_S,(',ct,')'..self.name..');')
   else
-   output('   tolua_pushusertype(tolua_S,(void*)'..self.name..',"',self.type,'");')
+   local push_func = get_push_function(self.type)
+   output('   ',push_func,'(tolua_S,(void*)'..self.name..',"',self.type,'");')
   end
   return 1
  end

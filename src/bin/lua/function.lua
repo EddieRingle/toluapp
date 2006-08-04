@@ -90,7 +90,7 @@ function classFunction:supcode (local_constructor)
  local narg
  if class then narg=2 else narg=1 end
  if class then
-		local func = 'tolua_isusertype'
+		local func = get_is_function(self.parent.type)
 		local type = self.parent.type
 		if self.name=='new' or static~=nil then
 			func = 'tolua_isusertable'
@@ -131,7 +131,8 @@ function classFunction:supcode (local_constructor)
  if class and self.name~='new' and static==nil then
   output(' ',self.const,self.parent.type,'*','self = ')
   output('(',self.const,self.parent.type,'*) ')
-  output('tolua_tousertype(tolua_S,1,0);')
+  local to_func = get_to_function(self.parent.type)
+  output(to_func,'(tolua_S,1,0);')
  elseif static then
   _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
  end
@@ -240,23 +241,27 @@ function classFunction:supcode (local_constructor)
    else
 			 t = self.type
 			 new_t = string.gsub(t, "const%s+", "")
+    local push_func = get_push_function(t)
     if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
      output('    void* tolua_obj = new',new_t,'(tolua_ret);')
-     output('    tolua_pushusertype_and_takeownership(tolua_S,tolua_obj,"',t,'");')
+     output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
+     output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#else\n')
      output('    void* tolua_obj = tolua_copy(tolua_S,(void*)&tolua_ret,sizeof(',t,'));')
-     output('    tolua_pushusertype_and_takeownership(tolua_S,tolua_obj,"',t,'");')
+     output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
+     output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#endif\n')
      output('   }')
     elseif self.ptr == '&' then
-     output('   tolua_pushusertype(tolua_S,(void*)&tolua_ret,"',t,'");')
+     output('   ',push_func,'(tolua_S,(void*)&tolua_ret,"',t,'");')
     else
     	if local_constructor then
-	  output('   tolua_pushusertype_and_takeownership(tolua_S,(void *)tolua_ret,"',t,'");')
+	  output('   ',push_func,'(tolua_S,(void *)tolua_ret,"',t,'");')
+      output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
     	else
-		     output('   tolua_pushusertype(tolua_S,(void*)tolua_ret,"',t,'");')
+		     output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
 	    end
     end
    end

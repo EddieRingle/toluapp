@@ -130,7 +130,8 @@ function classVariable:supcode ()
  if class and static==nil then
   output(' ',self.parent.type,'*','self = ')
   output('(',self.parent.type,'*) ')
-  output('tolua_tousertype(tolua_S,1,0);')
+  local to_func = get_to_function(self.parent.type)
+  output(to_func,'(tolua_S,1,0);')
  elseif static then
   _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
  end
@@ -145,21 +146,23 @@ function classVariable:supcode ()
 
  -- return value
  if string.find(self.mod, 'tolua_inherits') then
+	local push_func = get_push_function(self.type)
  	output('#ifdef __cplusplus\n')
-	output('  tolua_pushusertype(tolua_S,(void*)static_cast<'..self.type..'*>(self), "',self.type,'");')
+	output('  ',push_func,'(tolua_S,(void*)static_cast<'..self.type..'*>(self), "',self.type,'");')
 	output('#else\n')
-	output('  tolua_pushusertype(tolua_S,(void*)(('..self.type..'*)self), "',self.type,'");')
+	output('  ',push_func,'(tolua_S,(void*)(('..self.type..'*)self), "',self.type,'");')
 	output('#endif\n')
  else
 	local t,ct = isbasic(self.type)
 	if t then
 		output('  tolua_push'..t..'(tolua_S,(',ct,')'..self:getvalue(class,static,prop_get)..');')
 	else
+		local push_func = get_push_function(self.type)
 		t = self.type
 		if self.ptr == '&' or self.ptr == '' then
-			output('  tolua_pushusertype(tolua_S,(void*)&'..self:getvalue(class,static,prop_get)..',"',t,'");')
+			output('  ',push_func,'(tolua_S,(void*)&'..self:getvalue(class,static,prop_get)..',"',t,'");')
 		else
-			output('  tolua_pushusertype(tolua_S,(void*)'..self:getvalue(class,static,prop_get)..',"',t,'");')
+			output('  ',push_func,'(tolua_S,(void*)'..self:getvalue(class,static,prop_get)..',"',t,'");')
 		end
 	end
  end
@@ -184,7 +187,8 @@ function classVariable:supcode ()
   if class and static==nil then
    output(' ',self.parent.type,'*','self = ')
    output('(',self.parent.type,'*) ')
-   output('tolua_tousertype(tolua_S,1,0);')
+   local to_func = get_to_function(self.parent.type)
+   output(to_func,'(tolua_S,1,0);')
    -- check self value
 		end
   -- check types
@@ -244,7 +248,8 @@ function classVariable:supcode ()
 				end
 				output('tolua_to'..t,'(tolua_S,2,',def,'))')
 			else
-				output('tolua_tousertype(tolua_S,2,',def,'))')
+				local to_func = get_to_function(self.type)
+				output(to_func,'(tolua_S,2,',def,'))')
 			end
 			if prop_set then
 				output(")")

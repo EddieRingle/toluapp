@@ -354,4 +354,20 @@ function parser_hook(s)
 	return nil
 end
 
+-- custom pushers
 
+_push_functions = {}
+_is_functions = {}
+_to_functions = {}
+
+function get_push_function(t)
+	return _push_functions[t] or "tolua_pushusertype"
+end
+
+function get_to_function(t)
+	return _to_functions[t] or "tolua_tousertype"
+end
+
+function get_is_function(t)
+	return _is_functions[t] or "tolua_isusertype"
+end
