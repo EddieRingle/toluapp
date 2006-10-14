@@ -360,14 +360,31 @@ _push_functions = {}
 _is_functions = {}
 _to_functions = {}
 
+_base_push_functions = {}
+_base_is_functions = {}
+_base_to_functions = {}
+
+local function search_base(t, funcs)
+
+	local class = _global_classes[t]
+
+	while class do
+		if funcs[class.type] then
+			return funcs[class.type]
+		end
+		class = _global_classes[class.btype]
+	end
+	return nil
+end
+
 function get_push_function(t)
-	return _push_functions[t] or "tolua_pushusertype"
+	return _push_functions[t] or search_base(t, _base_push_functions) or "tolua_pushusertype"
 end
 
 function get_to_function(t)
-	return _to_functions[t] or "tolua_tousertype"
+	return _to_functions[t] or search_base(t, _base_to_functions) or "tolua_tousertype"
 end
 
 function get_is_function(t)
-	return _is_functions[t] or "tolua_isusertype"
+	return _is_functions[t] or search_base(t, _base_is_functions) or "tolua_isusertype"
 end
