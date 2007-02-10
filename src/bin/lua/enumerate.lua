@@ -21,6 +21,9 @@ setmetatable(classEnumerate,classFeature)
 
 -- register enumeration
 function classEnumerate:register (pre)
+	if not self:check_public_access() then
+		return
+	end
  pre = pre or ''
  local nspace = getnamespace(classContainer.curr)
  local i=1

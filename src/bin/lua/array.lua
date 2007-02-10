@@ -205,6 +205,10 @@ function classArray:supcode ()
 end
 
 function classArray:register (pre)
+	if not self:check_public_access() then
+		return
+	end
+
  pre = pre or ''
  if self.csetname then
   output(pre..'tolua_array(tolua_S,"'..self.lname..'",'..self.cgetname..','..self.csetname..');')
