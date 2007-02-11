@@ -21,6 +21,7 @@ setmetatable(classEnumerate,classFeature)
 
 -- register enumeration
 function classEnumerate:register (pre)
+--print("access is ",self.access, self.global_access)
 	if not self:check_public_access() then
 		return
 	end

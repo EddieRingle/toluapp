@@ -145,7 +145,8 @@ function resolve_template_types(type)
 
 		local b,i
 		type,b,i = break_template(type)
-		local template_part = "<"..string.gsub(concat(m, 1, m.n), " ", ",")..">"
+--print("concat is ",concat(m, 1, m.n))
+		local template_part = "<"..concat(m, 1, m.n, ",")..">"
 		type = rebuild_template(type, b, template_part)
 		type = string.gsub(type, ">>", "> >")
 	end
