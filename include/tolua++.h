@@ -32,7 +32,9 @@ extern "C" {
 #define tolua_iscppstringarray tolua_isstringarray
 #define tolua_pushfieldcppstring(L,lo,idx,s) tolua_pushfieldstring(L, lo, idx, s.c_str())
 
+#ifndef TEMPLATE_BIND
 #define TEMPLATE_BIND(p)
+#endif
 #define TOLUA_TEMPLATE_BIND(p)
 #define TOLUA_PROTECTED_DESTRUCTOR
 #define TOLUA_PROPERTY_TYPE(p)
@@ -149,6 +151,19 @@ static inline const char* tolua_tofieldcppstring (lua_State* L, int lo, int inde
 #endif
 
 TOLUA_API int tolua_fast_isa(lua_State *L, int mt_indexa, int mt_indexb, int super_index);
+
+#ifndef Mtolua_new
+#define Mtolua_new(EXP) new EXP
+#endif
+
+#ifndef Mtolua_delete
+#define Mtolua_delete(EXP) delete EXP
+#endif
+
+#ifndef Mtolua_delete_dim
+#define Mtolua_delete_dim(EXP) delete [] EXP
+#endif
+
 
 #ifdef __cplusplus
 }

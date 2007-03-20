@@ -169,7 +169,7 @@ function classFunction:supcode (local_constructor)
  local out = string.find(self.mod, "tolua_outside")
  -- call function
  if class and self.name=='delete' then
-  output('  delete self;')
+  output('  Mtolua_delete(self);')
  elseif class and self.name == 'operator&[]' then
   if flags['1'] then -- for compatibility with tolua5 ?
 	output('  self->operator[](',self.args[1].name,'-1) = ',self.args[2].name,';')
@@ -185,7 +185,7 @@ function classFunction:supcode (local_constructor)
    output('  ')
   end
   if class and self.name=='new' then
-   output('new',self.type,'(')
+   output('Mtolua_new(',self.type,'(')
   elseif class and static then
 	if out then
 		output(self.name,'(')
@@ -225,7 +225,11 @@ function classFunction:supcode (local_constructor)
   if class and self.name == 'operator[]' and flags['1'] then
 	output('-1);')
   else
-	output(');')
+	if class and self.name=='new' then
+		output('));') -- close Mtolua_new(
+	else
+		output(');')
+	end
   end
 
   -- return values

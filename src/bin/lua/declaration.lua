@@ -252,7 +252,7 @@ function classDeclaration:builddeclaration (narg, cplusplus)
    line = concatparam(line,'[',self.dim,'];')
   else
 	if cplusplus then
-		line = concatparam(line,' = new',type,ptr,'['..self.dim..'];')
+		line = concatparam(line,' = Mtolua_new(',type,ptr,'['..self.dim..']);')
 	else
 		line = concatparam(line,' = (',type,ptr,'*)',
 		'malloc((',self.dim,')*sizeof(',type,ptr,'));')
@@ -363,7 +363,7 @@ function classDeclaration:setarray (narg)
    if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
-     output('    void* tolua_obj = new',type,'(',self.name,'[i]);')
+     output('    void* tolua_obj = Mtolua_new(',type,'(',self.name,'[i]));')
      output('    tolua_pushfieldusertype_and_takeownership(tolua_S,',narg,',i+1,tolua_obj,"',type,'");')
      output('#else\n')
      output('    void* tolua_obj = tolua_copy(tolua_S,(void*)&',self.name,'[i],sizeof(',type,'));')
@@ -382,7 +382,7 @@ end
 function classDeclaration:freearray ()
  if self.dim ~= '' and tonumber(self.dim)==nil then
 	 output('#ifdef __cplusplus\n')
-		output('  delete []',self.name,';')
+		output('  Mtolua_delete_dim(',self.name,');')
 	 output('#else\n')
   output('  free(',self.name,');')
 	 output('#endif\n')
