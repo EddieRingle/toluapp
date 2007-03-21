@@ -249,7 +249,7 @@ function classFunction:supcode (local_constructor)
     if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
-     output('    void* tolua_obj = new',new_t,'(tolua_ret);')
+     output('    void* tolua_obj = Mtolua_new(',new_t,'(tolua_ret));')
      output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
      output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#else\n')
