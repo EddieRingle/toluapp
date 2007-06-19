@@ -153,7 +153,7 @@ static inline const char* tolua_tofieldcppstring (lua_State* L, int lo, int inde
 TOLUA_API int tolua_fast_isa(lua_State *L, int mt_indexa, int mt_indexb, int super_index);
 
 #ifndef Mtolua_new
-#define Mtolua_new(EXP) new EXP
+#define Mtolua_new(EXP...) new EXP
 #endif
 
 #ifndef Mtolua_delete
