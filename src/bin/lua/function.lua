@@ -406,7 +406,7 @@ function param_object(par) -- returns true if the parameter has an object as its
 
 	if string.find(par, "%*") then -- it's a pointer with a default value
 
-		if string.find(par, '=%s*new') then -- it's a pointer with an instance as default parameter.. is that valid?
+		if string.find(par, '=%s*new') or string.find(par, "%(") then -- it's a pointer with an instance as default parameter.. is that valid?
 			return true
 		end
 		return false -- default value is 'NULL' or something

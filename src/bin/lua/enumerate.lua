@@ -29,7 +29,9 @@ function classEnumerate:register (pre)
  local nspace = getnamespace(classContainer.curr)
  local i=1
  while self[i] do
-  output(pre..'tolua_constant(tolua_S,"'..self.lnames[i]..'",'..nspace..self[i]..');')
+ 	if self.lnames[i] and self.lnames[i] ~= "" then
+		output(pre..'tolua_constant(tolua_S,"'..self.lnames[i]..'",'..nspace..self[i]..');')
+	end
   i = i+1
  end
 end

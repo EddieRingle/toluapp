@@ -38,7 +38,7 @@ def save_config(target, source, env):
 cust = env.Command('custom.py', [], save_config)
 env.Alias('configure', [cust])
 
-
+env['TOLUAPP_BOOTSTRAP'] = env['tolua_bin']+"_bootstrap"
 
 env['build_dev'] = int(env['build_dev'])
 
@@ -69,7 +69,7 @@ def pkg_scan_dep(self, target, source):
 				self.pkg_scan_dep(target, dep.groups()[0])
 
 
-def make_tolua_code(self, target, source, pkgname = None, use_own = None, use_typeid=None):
+def make_tolua_code(self, target, source, pkgname = None, bootstrap = False, use_own = False, use_typeid=None):
 
 	ptarget = Dir('.').path + '/' + target
 	psource = Dir('.').path + '/' + source
@@ -77,13 +77,19 @@ def make_tolua_code(self, target, source, pkgname = None, use_own = None, use_ty
 	pheader = Dir('.').path + '/' + header
 
 	tolua = ""
-	if use_own:
+	if bootstrap:
 		if 'msvc' in self['TOOLS']:
-			tolua = 'bin\\$TOLUAPP'
+			tolua = 'bin\\$TOLUAPP_BOOTSTRAP'
 		else:
-			tolua = 'bin/$TOLUAPP'
+			tolua = 'bin/$TOLUAPP_BOOTSTRAP'
 	else:
-		tolua = "$TOLUAPP"
+		if use_own:
+			if 'msvc' in self['TOOLS']:
+				tolua = 'bin\\$tolua_bin'
+			else:
+				tolua = 'bin/$tolua_bin'
+		else:
+			tolua = "$TOLUAPP"
 
 	if pkgname:
 		pkgname = ' -n '+pkgname
@@ -94,15 +100,19 @@ def make_tolua_code(self, target, source, pkgname = None, use_own = None, use_ty
 		tolua = tolua+' -t'
 
 	comando = tolua + ' -C -H ' + pheader + ' -o ' + ptarget + pkgname + ' ' + psource
-	self.Command(target, source, comando)
+	command = self.Command(target, source, comando)
 
 	self.SideEffect(header, target)
 	self.Depends(target, source)
 
 	self.pkg_scan_dep(target, psource)
 
+	if bootstrap:
+		self.Depends(target, "#/bin/$TOLUAPP_BOOTSTRAP")
 	if use_own:
 		self.Depends(target, "#/bin/$tolua_bin")
+	
+	return command
 
 
 env.__class__.LuaBinding = make_tolua_code;

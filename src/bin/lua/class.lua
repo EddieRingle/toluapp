@@ -148,7 +148,7 @@ function Class (n,p,b)
 
 	-- check for template
 	b = string.gsub(b, "^{%s*TEMPLATE_BIND", "{\nTOLUA_TEMPLATE_BIND")
-	local t,_,T,I = string.find(b, "^{%s*TOLUA_TEMPLATE_BIND%s*%(+%s*\"?([^\",]*)\"?%s*,%s*([^%)]*)%s*%)+")
+	local t,_,T,I = string.find(b, '^{%s*TOLUA_TEMPLATE_BIND%s*%(+%s*\"?([^\",]*)\"?%s*,%s*([^%)]*)%s*%)+')
 	if t then
 
 		-- remove quotes
@@ -158,37 +158,17 @@ function Class (n,p,b)
 		local types = split_c_tokens(I, ",")
 		-- remove TEMPLATE_BIND line
 		local bs = string.gsub(b, "^{%s*TOLUA_TEMPLATE_BIND[^\n]*\n", "{\n")
-
-		-- replace
-		for i =1 , types.n do
-
-			local Tl = split(T, " ")
-			local Il = split_c_tokens(types[i], " ")
-			local bI = bs
-			local pI = {}
-			for j = 1,Tl.n do
-				Tl[j] = findtype(Tl[j]) or Tl[j]
-				bI = string.gsub(bI, "([^_%w])"..Tl[j].."([^_%w])", "%1"..Il[j].."%2")
-				if p then
-					for i=1,table.getn(p) do
-						pI[i] = string.gsub(p[i], "([^_%w]?)"..Tl[j].."([^_%w]?)", "%1"..Il[j].."%2")
-					end
-				end
-			end
-			--local append = "<"..string.gsub(types[i], "%s+", ",")..">"
-			local append = "<"..concat(Il, 1, table.getn(Il), ",")..">"
-			append = string.gsub(append, "%s*,%s*", ",")
-			append = string.gsub(append, ">>", "> >")
-			for i=1,table.getn(pI) do
-				--pI[i] = string.gsub(pI[i], ">>", "> >")
-				pI[i] = resolve_template_types(pI[i])
-			end
-			bI = string.gsub(bI, ">>", "> >")
-			Class(n..append, pI, bI)
+			
+		local Tl = split(T, " ")
+		local tc = TemplateClass(n, p, bs, Tl)
+		
+		for i=1,types.n do
+		
+			tc:throw(split_c_tokens(types[i], " "))
 		end
 		return
 	end
-
+	
 	local mbase
 
 	if p then
