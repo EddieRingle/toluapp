@@ -47,7 +47,7 @@ function classTemplateClass:throw(types)
 end
 
 
-function TemplateClass(name, parents, body, parameters)
+function TemplateClass(name, parents, body, parameters, register)
 
 	local o = {
 	
@@ -62,10 +62,12 @@ function TemplateClass(name, parents, body, parameters)
 
 	setmetatable(o, classTemplateClass)
 
-	if _global_templates[oname] then
-		warning("Duplicate declaration of template "..oname)
-	else
-		_global_templates[oname] = o
+	if register then
+		if _global_templates[oname] then
+			warning("Duplicate declaration of template "..oname)
+		else
+			_global_templates[oname] = o
+		end
 	end
 
 	return o
