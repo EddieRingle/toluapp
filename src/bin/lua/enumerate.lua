@@ -21,7 +21,6 @@ setmetatable(classEnumerate,classFeature)
 
 -- register enumeration
 function classEnumerate:register (pre)
---print("access is ",self.access, self.global_access)
 	if not self:check_public_access() then
 		return
 	end
@@ -30,6 +29,7 @@ function classEnumerate:register (pre)
  local i=1
  while self[i] do
  	if self.lnames[i] and self.lnames[i] ~= "" then
+	
 		output(pre..'tolua_constant(tolua_S,"'..self.lnames[i]..'",'..nspace..self[i]..');')
 	end
   i = i+1
@@ -62,6 +62,11 @@ function _Enumerate (t,varname)
 			Variable("tolua_readonly int "..varname)
 		end
 	end
+	 local parent = classContainer.curr
+	 if parent then
+		t.access = parent.curr_member_access
+		t.global_access = t:check_public_access()
+	 end
 return t
 end
 

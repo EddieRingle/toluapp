@@ -190,7 +190,7 @@ function classDeclaration:requirecollection (t)
  if self.mod ~= 'const' and
 	    self.dim and self.dim ~= '' and
 				 not isbasic(self.type) and
-				 self.ptr == '' then
+				 self.ptr == '' and self:check_public_access() then
 		local type = gsub(self.type,"%s*const%s+","")
 		t[type] = "tolua_collect_" .. clean_template(type)
 		return true
