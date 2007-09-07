@@ -265,14 +265,9 @@ function classFunction:supcode (local_constructor)
     elseif self.ptr == '&' then
      output('   ',push_func,'(tolua_S,(void*)&tolua_ret,"',t,'");')
     else
-   	 if local_constructor then
-	  output('   ',push_func,'(tolua_S,(void *)tolua_ret,"',t,'");')
+	 output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
+	 if owned or local_constructor then
       output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
-     else
-	  output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
-	  if owned then
-       output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
-	  end
 	 end
     end
    end
