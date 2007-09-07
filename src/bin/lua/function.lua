@@ -107,7 +107,7 @@ function classFunction:supcode (local_constructor)
   while self.args[i] do
    local btype = isbasic(self.args[i].type)
    if btype ~= 'value' and btype ~= 'state' then
-    output('     !'..self.args[i]:outchecktype(narg)..' ||\n')
+    output('     '..self.args[i]:outchecktype(narg)..' ||\n')
    end
    if btype ~= 'state' then
 	   narg = narg+1
@@ -243,10 +243,14 @@ function classFunction:supcode (local_constructor)
 	    output('   tolua_push'..t..'(tolua_S,(',ct,')tolua_ret);')
 	end
    else
-			 t = self.type
-			 new_t = string.gsub(t, "const%s+", "")
+	t = self.type
+	new_t = string.gsub(t, "const%s+", "")
+	local owned = false
+	if string.find(self.mod, "tolua_owned") then
+		owned = true
+	end
     local push_func = get_push_function(t)
-    if self.ptr == '' then
+    if self.ptr == '' or owned then
      output('   {')
      output('#ifdef __cplusplus\n')
      output('    void* tolua_obj = Mtolua_new(',new_t,'(tolua_ret));')

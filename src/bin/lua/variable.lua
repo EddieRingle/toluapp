@@ -201,7 +201,7 @@ function classVariable:supcode ()
   end
 
   -- check variable type
-  output('  if (!'..self:outchecktype(2)..')')
+  output('  if ('..self:outchecktype(2)..')')
   output('   tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);')
 		output('#endif\n')
 
