@@ -250,7 +250,7 @@ function classFunction:supcode (local_constructor)
 		owned = true
 	end
     local push_func = get_push_function(t)
-    if self.ptr == '' or owned then
+    if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
      output('    void* tolua_obj = Mtolua_new(',new_t,'(tolua_ret));')
@@ -265,12 +265,15 @@ function classFunction:supcode (local_constructor)
     elseif self.ptr == '&' then
      output('   ',push_func,'(tolua_S,(void*)&tolua_ret,"',t,'");')
     else
-    	if local_constructor then
+   	 if local_constructor then
 	  output('   ',push_func,'(tolua_S,(void *)tolua_ret,"',t,'");')
       output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
-    	else
-		     output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
-	    end
+     else
+	  output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
+	  if owned then
+       output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
+	  end
+	 end
     end
    end
   end
