@@ -19,5 +19,5 @@ prefix = '/usr/local'
 LIBS = ['lua', 'lualib', 'm']
 
 
-print "****** posix"
+
 import os

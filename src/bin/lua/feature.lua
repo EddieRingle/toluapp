@@ -61,11 +61,16 @@ function classFeature:buildnames ()
  local parent = classContainer.curr
  if parent then
  	self.access = parent.curr_member_access
+	self.global_access = self:check_public_access()
  else
  end
 end
 
 function classFeature:check_public_access()
+
+	if type(self.global_access) == "boolean" then
+		return self.global_access
+	end
 
 	if self.access and self.access ~= 0 then
 		return false
@@ -121,7 +126,11 @@ function classFeature:cfuncname (n)
   n = self.parent:cfuncname(n)
  end
 
-  n = string.gsub(n..'_'.. (self.lname or self.name), "[<>:, \.%*]", "_")
+ local fname = self.lname
+ if not fname or fname == '' then
+ 	fname = self.name
+ end
+  n = string.gsub(n..'_'.. (fname), "[<>:, \.%*&]", "_")
 
   return n
 end

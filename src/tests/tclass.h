@@ -34,6 +34,8 @@ public:
 
 	void set_number(int p_number) { number = p_number;};
 	int get_number() {return number*2;};
+	
+	virtual ~Tst_A() {};
 };
 
 class Tst_B : public Tst_A
@@ -45,6 +47,8 @@ public:
 
 	static Tst_A* create() {return new Tst_B;};
 	static void* create_void() {return new Tst_B;};
+	
+	virtual ~Tst_B() {};
 };
 
 class Tst_C : public Tst_B
@@ -68,6 +72,8 @@ inline bool Tst_is_aa (Tst_A::Tst_AA* obj)
 }
 
 class Tst_E {
+	void* ptr;
+
 public:
 	enum Pete {
 		ONE,
@@ -85,6 +91,12 @@ public:
 	void get_pointer(void* a) {};
 
 	Tst_A a;
+
+	void set_ptr(void* p_ptr) {
+		printf("this is %p, ptr is %p\n", this, p_ptr);
+		ptr = p_ptr;
+	};
+	void* get_ptr() {return ptr;};
 
 	Tst_E(int) {};
 };

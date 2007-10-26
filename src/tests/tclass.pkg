@@ -1,5 +1,10 @@
 $#include "tclass.h"
 
+$Test::Tst_A* Test::Tst_A::last;
+$Test::Tst_B* Test::Tst_B::last;
+$Test::Tst_C* Test::Tst_C::last;
+
+
 $renaming ^Tst_ @
 
 namespace Test {
@@ -43,6 +48,12 @@ public:
 
 	void pars(int a=0xa, int b=GetNumber(GetNumber(1,2)));
 	void get_pointer(void* a=NULL);
+
+	void set_ptr(void* p_ptr) {
+		printf("this is %p, ptr is %p\n", this, p_ptr);
+		ptr = p_ptr;
+	};
+	void* get_ptr() {return ptr;};
 
 	Tst_A a;
 	Tst_E(int);

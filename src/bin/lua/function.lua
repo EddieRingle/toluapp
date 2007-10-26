@@ -90,7 +90,7 @@ function classFunction:supcode (local_constructor)
  local narg
  if class then narg=2 else narg=1 end
  if class then
-		local func = 'tolua_isusertype'
+		local func = get_is_function(self.parent.type)
 		local type = self.parent.type
 		if self.name=='new' or static~=nil then
 			func = 'tolua_isusertable'
@@ -107,7 +107,7 @@ function classFunction:supcode (local_constructor)
   while self.args[i] do
    local btype = isbasic(self.args[i].type)
    if btype ~= 'value' and btype ~= 'state' then
-    output('     !'..self.args[i]:outchecktype(narg)..' ||\n')
+    output('     '..self.args[i]:outchecktype(narg)..' ||\n')
    end
    if btype ~= 'state' then
 	   narg = narg+1
@@ -131,7 +131,8 @@ function classFunction:supcode (local_constructor)
  if class and self.name~='new' and static==nil then
   output(' ',self.const,self.parent.type,'*','self = ')
   output('(',self.const,self.parent.type,'*) ')
-  output('tolua_tousertype(tolua_S,1,0);')
+  local to_func = get_to_function(self.parent.type)
+  output(to_func,'(tolua_S,1,0);')
  elseif static then
   _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
  end
@@ -168,7 +169,7 @@ function classFunction:supcode (local_constructor)
  local out = string.find(self.mod, "tolua_outside")
  -- call function
  if class and self.name=='delete' then
-  output('  delete self;')
+  output('  Mtolua_delete(self);')
  elseif class and self.name == 'operator&[]' then
   if flags['1'] then -- for compatibility with tolua5 ?
 	output('  self->operator[](',self.args[1].name,'-1) = ',self.args[2].name,';')
@@ -184,7 +185,7 @@ function classFunction:supcode (local_constructor)
    output('  ')
   end
   if class and self.name=='new' then
-   output('new',self.type,'(')
+   output('Mtolua_new(',self.type,'(')
   elseif class and static then
 	if out then
 		output(self.name,'(')
@@ -195,7 +196,11 @@ function classFunction:supcode (local_constructor)
 	if out then
 		output(self.name,'(')
 	else
+	  if self.cast_operator then
+	  	output('static_cast<',self.mod,self.type,self.ptr,'>(*self')
+	  else
 		output('self->'..self.name,'(')
+	  end
 	end
   else
    output(self.name,'(')
@@ -220,7 +225,11 @@ function classFunction:supcode (local_constructor)
   if class and self.name == 'operator[]' and flags['1'] then
 	output('-1);')
   else
-	output(');')
+	if class and self.name=='new' then
+		output('));') -- close Mtolua_new(
+	else
+		output(');')
+	end
   end
 
   -- return values
@@ -228,28 +237,38 @@ function classFunction:supcode (local_constructor)
    nret = nret + 1
    local t,ct = isbasic(self.type)
    if t then
-    output('   tolua_push'..t..'(tolua_S,(',ct,')tolua_ret);')
+   	if self.cast_operator and _basic_raw_push[t] then
+		output('   ',_basic_raw_push[t],'(tolua_S,(',ct,')tolua_ret);')
+   	else
+	    output('   tolua_push'..t..'(tolua_S,(',ct,')tolua_ret);')
+	end
    else
-			 t = self.type
-			 new_t = string.gsub(t, "const%s+", "")
+	t = self.type
+	new_t = string.gsub(t, "const%s+", "")
+	local owned = false
+	if string.find(self.mod, "tolua_owned") then
+		owned = true
+	end
+    local push_func = get_push_function(t)
     if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
-     output('    void* tolua_obj = new',new_t,'(tolua_ret);')
-     output('    tolua_pushusertype_and_takeownership(tolua_S,tolua_obj,"',t,'");')
+     output('    void* tolua_obj = Mtolua_new(',new_t,'(tolua_ret));')
+     output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
+     output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#else\n')
      output('    void* tolua_obj = tolua_copy(tolua_S,(void*)&tolua_ret,sizeof(',t,'));')
-     output('    tolua_pushusertype_and_takeownership(tolua_S,tolua_obj,"',t,'");')
+     output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
+     output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#endif\n')
      output('   }')
     elseif self.ptr == '&' then
-     output('   tolua_pushusertype(tolua_S,(void*)&tolua_ret,"',t,'");')
+     output('   ',push_func,'(tolua_S,(void*)&tolua_ret,"',t,'");')
     else
-    	if local_constructor then
-	  output('   tolua_pushusertype_and_takeownership(tolua_S,(void *)tolua_ret,"',t,'");')
-    	else
-		     output('   tolua_pushusertype(tolua_S,(void*)tolua_ret,"',t,'");')
-	    end
+	 output('   ',push_func,'(tolua_S,(void*)tolua_ret,"',t,'");')
+	 if owned or local_constructor then
+      output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
+	 end
     end
    end
   end
@@ -389,7 +408,7 @@ function param_object(par) -- returns true if the parameter has an object as its
 
 	if string.find(par, "%*") then -- it's a pointer with a default value
 
-		if string.find(par, '=%s*new') then -- it's a pointer with an instance as default parameter.. is that valid?
+		if string.find(par, '=%s*new') or string.find(par, "%(") then -- it's a pointer with an instance as default parameter.. is that valid?
 			return true
 		end
 		return false -- default value is 'NULL' or something
@@ -470,9 +489,16 @@ function Function (d,a,c)
  	a = string.gsub(a, "%s*([%(%)])%s*", "%1")
 	local t,strip,last = strip_pars(strsub(a,2,-2));
 	if strip then
-		local ns = string.sub(strsub(a,1,-2), 1, -(string.len(last)+1))
-		ns = string.gsub(ns, "%s*,%s*$", "")..')'
+		--local ns = string.sub(strsub(a,1,-2), 1, -(string.len(last)+1))
+		local ns = join(t, ",", 1, last-1)
+
+		ns = "("..string.gsub(ns, "%s*,%s*$", "")..')'
+		--ns = strip_defaults(ns)
+
 		Function(d, ns, c)
+		for i=1,last do
+			t[i] = string.gsub(t[i], "=.*$", "")
+		end
 	end
 
  while t[i] do
@@ -486,24 +512,61 @@ function Function (d,a,c)
  return _Function(f)
 end
 
+function join(t, sep, first, last)
+
+	first = first or 1
+	last = last or table.getn(t)
+	local lsep = ""
+	local ret = ""
+	local loop = false
+	for i = first,last do
+
+		ret = ret..lsep..t[i]
+		lsep = sep
+		loop = true
+	end
+	if not loop then
+		return ""
+	end
+
+	return ret
+end
+
 function strip_pars(s)
 
 	local t = split_c_tokens(s, ',')
 	local strip = false
 	local last
 
-	for i=1,t.n do
+	for i=t.n,1,-1 do
 
 		if not strip and param_object(t[i]) then
+			last = i
 			strip = true
 		end
-		if strip then
-			last = t[i]
-			t[i] = string.gsub(t[i], "=.*$", "")
-		end
+		--if strip then
+		--	t[i] = string.gsub(t[i], "=.*$", "")
+		--end
 	end
 
 	return t,strip,last
 
 end
+
+function strip_defaults(s)
+
+	s = string.gsub(s, "^%(", "")
+	s = string.gsub(s, "%)$", "")
+
+	local t = split_c_tokens(s, ",")
+	local sep, ret = "",""
+	for i=1,t.n do
+		t[i] = string.gsub(t[i], "=.*$", "")
+		ret = ret..sep..t[i]
+		sep = ","
+	end
+
+	return "("..ret..")"
+end
+
 

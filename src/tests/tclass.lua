@@ -1,3 +1,22 @@
+if not Test then
+	local loadlib
+	if not package then
+		loadlib = _G['loadlib']
+	else
+		loadlib = package.loadlib
+	end
+	f, e, eo = loadlib("./libtclass.so", "luaopen_tclass")
+	if f then
+		f()
+	else
+		print(eo, e)
+		os.exit()
+	end
+end
+
+a = {}
+rawset(a, ".c_instance", "something")
+
 function hello()
 
 	print("hello world")
@@ -6,10 +25,11 @@ end
 rawset(Test.B, "hello", hello)
 
 -- type convertion tests
-print(Test.A)
-assert(tolua.type(Test.A.last) == 'Test::Tst_A') -- first time the object is mapped
-assert(tolua.type(Test.B.last) == 'Test::Tst_B') -- type convertion to specialized type
-assert(tolua.type(Test.A.last) == 'Test::Tst_B') -- no convertion: obj already mapped as B
+--print(Test.A)
+--print(tolua.type(Test.A.last))
+--assert(tolua.type(Test.A.last) == 'Test::Tst_A') -- first time the object is mapped
+--assert(tolua.type(Test.B.last) == 'Test::Tst_B') -- type convertion to specialized type
+--assert(tolua.type(Test.A.last) == 'Test::Tst_B') -- no convertion: obj already mapped as B
 
 
 local a = Test.A:new()
@@ -38,20 +58,15 @@ assert(Test.is_aa(bb) == true)
 
 -- test ownershipping handling
 -- should delete objects: 6 7 8 9 10 (it may vary!)
-_ = [[
 local set = {}
 for i=1,10 do
  local c = Test.luaC:new(i)
 	if i>5 then
 		tolua.takeownership(c)
 	end
-	set[i] = c
+	--set[i] = c
 end
 
-for i=1,5 do
- tolua.releaseownership(set[i])
-end
---]]
 
 
 e = Test.B:new_local()
@@ -96,11 +111,21 @@ print(tostring(Test.B.__call))
 print(tostring(Test.B.__call(Test.B)))
 print(tolua.type(b))
 
+e:set_ptr(e)
+local ve = tolua.cast(e:get_ptr(), "Test::Tst_E")
+ve:set_ptr(ve)
+
 print"1"
 Test.A.pete = {}
 print"2"
 table.insert(Test.A.pete, a)
 print"3"
+
+
+for i=1,100000 do
+	la = {}
+	tolua.inherit(la, a)
+end
 
 print("Class test OK")
 

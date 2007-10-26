@@ -91,20 +91,25 @@ function classArray:supcode ()
 		output(' tolua_index = (int)tolua_tonumber(tolua_S,2,0);')
 	end
 	output('#ifndef TOLUA_RELEASE\n')
- output(' if (tolua_index<0 || tolua_index>='..self.dim..')')
+	if self.dim and self.dim ~= '' then
+	  output(' if (tolua_index<0 || tolua_index>='..self.dim..')')
+	else
+	  output(' if (tolua_index<0)')
+	end
  output('  tolua_error(tolua_S,"array indexing out of range.",NULL);')
 	output('#endif\n')
 
  -- return value
  local t,ct = isbasic(self.type)
+ local push_func = get_push_function(t)
  if t then
   output(' tolua_push'..t..'(tolua_S,(',ct,')'..self:getvalue(class,static)..');')
  else
 		t = self.type
   if self.ptr == '&' or self.ptr == '' then
-   output(' tolua_pushusertype(tolua_S,(void*)&'..self:getvalue(class,static)..',"',t,'");')
+   output(' ',push_func,'(tolua_S,(void*)&'..self:getvalue(class,static)..',"',t,'");')
   else
-   output(' tolua_pushusertype(tolua_S,(void*)'..self:getvalue(class,static)..',"',t,'");')
+   output(' ',push_func,'(tolua_S,(void*)'..self:getvalue(class,static)..',"',t,'");')
   end
  end
  output(' return 1;')
@@ -156,7 +161,11 @@ function classArray:supcode ()
 	end
 
 	 output('#ifndef TOLUA_RELEASE\n')
-  output(' if (tolua_index<0 || tolua_index>='..self.dim..')')
+	if self.dim and self.dim ~= '' then
+	  output(' if (tolua_index<0 || tolua_index>='..self.dim..')')
+	else
+	  output(' if (tolua_index<0)')
+	end
   output('  tolua_error(tolua_S,"array indexing out of range.",NULL);')
 		output('#endif\n')
 
@@ -184,7 +193,8 @@ function classArray:supcode ()
   if t then
    output('tolua_to'..t,'(tolua_S,3,',def,'));')
   else
-   output('tolua_tousertype(tolua_S,3,',def,'));')
+   local to_func = get_to_function(self.type)
+   output(to_func,'(tolua_S,3,',def,'));')
   end
   output(' return 0;')
   output('}')
@@ -195,6 +205,10 @@ function classArray:supcode ()
 end
 
 function classArray:register (pre)
+	if not self:check_public_access() then
+		return
+	end
+
  pre = pre or ''
  if self.csetname then
   output(pre..'tolua_array(tolua_S,"'..self.lname..'",'..self.cgetname..','..self.csetname..');')

@@ -31,3 +31,12 @@ below.
 
   tolua.exe: all *.c *.h in src/bin (except toluabind_default.c)
   tolua.lib: all *.c *.h in src/lib.
+
+* Installation with Microsoft Visual Studio
+
+  The directory 'win32' contains project files for Microsoft Visual Studio 7
+  (contributed by Makoto Hamanaka). The project has 4 different build options:
+  withLua50_Release, withLua51_Release, withLua50_Debug and withLua51_Debug.
+  They all expect the lua library names used by the LuaBinaries packages
+  (http://luabinaries.luaforge.net/). The resulting files are built on /lib and
+  /bin (for the library and tolua++.exe).

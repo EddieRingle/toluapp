@@ -44,6 +44,9 @@ _basic_ctype = {
  state = "lua_State*",
 }
 
+-- functions the are used to do a 'raw push' of basic types
+_basic_raw_push = {}
+
 -- List of user defined types
 -- Each type corresponds to a variable name that stores its tag value.
 _usertype = {}
@@ -108,6 +111,7 @@ end
 end
 
 function warning (msg)
+ if flags.q then return end
  local out = _OUTPUT
  _OUTPUT = _STDERR
  write("\n** tolua warning: "..msg..".\n\n")
@@ -116,9 +120,9 @@ end
 
 -- register an user defined type: returns full type
 function regtype (t)
-	if isbasic(t) then
-		return t
-	end
+	--if isbasic(t) then
+	--	return t
+	--end
 	local ft = findtype(t)
 
 	if not _usertype[ft] then
@@ -350,4 +354,37 @@ function parser_hook(s)
 	return nil
 end
 
+-- custom pushers
 
+_push_functions = {}
+_is_functions = {}
+_to_functions = {}
+
+_base_push_functions = {}
+_base_is_functions = {}
+_base_to_functions = {}
+
+local function search_base(t, funcs)
+
+	local class = _global_classes[t]
+
+	while class do
+		if funcs[class.type] then
+			return funcs[class.type]
+		end
+		class = _global_classes[class.btype]
+	end
+	return nil
+end
+
+function get_push_function(t)
+	return _push_functions[t] or search_base(t, _base_push_functions) or "tolua_pushusertype"
+end
+
+function get_to_function(t)
+	return _to_functions[t] or search_base(t, _base_to_functions) or "tolua_tousertype"
+end
+
+function get_is_function(t)
+	return _is_functions[t] or search_base(t, _base_is_functions) or "tolua_isusertype"
+end

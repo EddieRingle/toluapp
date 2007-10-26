@@ -86,11 +86,11 @@ Shortcuts:</LI>
 <LI>
 <A HREF="#renaming">Renaming constants, variables and functions</A></LI>
 
-<li>
-<a href="#additional_features">Additional features</a></li>
-
 <LI>
 <A HREF="#additional">Storing additional fields</A></LI>
+
+<li>
+<a href="#additional_features">Additional features</a></li>
 
 <LI>
 <A HREF="#utilities">Exported utility functions</A></LI>
@@ -216,7 +216,7 @@ name for the package:
 <P>The package should also be explicitly initialized. To initialize the
 package from our C/C++ code, we must declare and call the initialization
 function. The initialization function is defined as
-<P><TT>int tolua_<I>pkgname</I>_open (void);</TT>
+<P><TT>int tolua_<I>pkgname</I>_open (lua_State*);</TT>
 <P>where <I><TT>pkgname </TT></I>represents the name of the package being
 bound. If we are using C++, we can opt for automatic initialization:
 <P><TT>tolua -a -n pkgname -o myfile.c myfile.pkg</TT>
@@ -267,7 +267,7 @@ or <TT>cfile</tt> directive:
 
 <tt>$cfile "example.h"</tt>
 <p>
-In wich case, <b>tolua</b> will extract the code enclosed between <tt>tolua_begin</tt>
+In which case, <b>tolua</b> will extract the code enclosed between <tt>tolua_begin</tt>
 and <tt>tolua_end</tt>, or or <tt>tolua_export</tt> for a single line. Consider this C++ header as example:
 
 <PRE>
@@ -308,7 +308,7 @@ Finally, lua files can be included on a package file, using <tt>$lfile</tt>:
 <tt>$lfile "example.lua"</tt>
 <p>
 
-<b>New on tolua++</b>: an extra way to include source files is available sonce
+<b>New on tolua++</b>: an extra way to include source files is available since
 version 1.0.4 of <b>tolua++</b>, using <tt>ifile</tt>:
 <p>
 
@@ -398,7 +398,7 @@ In the package file, we must specify which are the real header files that
 should be included so that the generated code can access the constants,
 variables, functions, and classes we are binding. Any line in the package
 file beginning with a <B>$ </B>(except $[hclp]file, $[ , and $] lines) is
-insert into the generated binding C/C++ code without any change, but the
+inserted into the generated binding C/C++ code without any change, but the
 elimination of the <B>$</B> itself. We use this feature to include the
 real header files. So, our package files will usually start with a set
 of <B>$</B> beginning lines specifying the files that must be included,
@@ -645,9 +645,9 @@ class Slider : public Widget, public Range {
 </PRE>
 <p>
 
-An object of type 'Slider' will fully retain it's inheritance with Widget,
+An object of type 'Slider' will fully retain its inheritance with Widget,
 and will contain a 'member' of type Range, which will return the object
-casted to the correct base type.
+cast to the correct base type.
 <p>
 
 For example:
@@ -737,7 +737,7 @@ In the example above, the point <TT>p3</TT> will be garbage-collected by
 </B>automatically;
 we cannot delete it.
 <p>
-<b>New on tolua++</b>: Also note that <tt>p4</tt> is created by calling the class name directly (<tt>ColorPoint()</tt>); this has the same effect as calling <tt>new_local</tt>, wich
+<b>New on tolua++</b>: Also note that <tt>p4</tt> is created by calling the class name directly (<tt>ColorPoint()</tt>); this has the same effect as calling <tt>new_local</tt>, which
 leaves the object to be deleted by the garbaje collector, and it should not be
 deleted using <tt>delete</tt>. For each constructor on the pkg, one <tt>new</tt>,
 <tt>new_local</tt> and <tt>.call</tt> callback for the class is created.
@@ -814,12 +814,75 @@ value is not a reference, the programmer can only get the value. An example
 may clarify: suppose we have a vector class and bind the following operator:
 <PRE>&nbsp;&nbsp; double&amp; operator[] (int index);</PRE>
 In this case, in Lua, we would be able to write: <TT>value = myVector[i]</TT>
-and also <TT>myVector[i] = value</TT>, wich updates the C++ object. However,
+and also <TT>myVector[i] = value</TT>, which updates the C++ object. However,
 if the bound operator was:
 <PRE>&nbsp;&nbsp; double operator[] (int index);</PRE>
 we would only be able to write: <TT>value = myVector[i]</TT>.
 <P>Free functions (i.e., not class members) that overload operators are
 not supported.
+
+<p>
+
+<H4>
+Cast operators</H4>
+
+<b>New on tolua++</b> (versions 1.0.90 and up): casting operators are also supported.
+For example:
+
+<pre>
+/////////////// node.h
+
+// a class that holds a value that can be of type int, double, string or Object*
+class Node { // tolua_export
+
+private:
+	union {
+		int int_value;
+		double double_value;
+		string string_value;
+		Object* object_value;
+	};
+
+// tolua_begin
+public:
+
+	enum Type {
+		T_INT,
+		T_DOUBLE,
+		T_STRING,
+		T_OBJECT,
+		T_MAX,
+	};
+
+	Type get_type();
+
+	operator int();
+	operator double();
+	operator string();
+	operator Object*();
+};
+// tolua_end
+</pre>
+
+<b>tolua++</b> will produce code that calls the operators by casting the object Node (using C++ <tt>static_cast</tt>),
+and register them inside the class as ".typename". For example:
+
+<pre>
+-- node.lua
+
+local node = list.get_node("some_node") -- returns a Node object
+
+if node.get_type() == Node.T_STRING then
+
+	print("node is "..node[".string"]())
+
+elseif node.get_type() == Node.T_OBJECT then
+
+	local object = node[".Object*"]()
+	object:method()
+end
+
+</pre>
 
 <h3><a name="properties"></a>Binding Properties</h3>
 
@@ -954,12 +1017,12 @@ class Label {
 <h3><a name="templates"></a>Class Templates</h3>
 
 One of the additional features of <b>tolua++</b> is the support for class templates,
-by using the <tt>TEMPLATE_BIND</tt> directive. For example:
+by using the <tt>TOLUA_TEMPLATE_BIND</tt> directive. For example:
 
 <pre>
 class vector {
 
-	TEMPLATE_BIND(T, int, string, Vector3D, double)
+	TOLUA_TEMPLATE_BIND(T, int, string, Vector3D, double)
 
 	void clear();
 	int size() const;
@@ -973,9 +1036,10 @@ class vector {
 };
 </pre>
 
-This code will create 4 versions of the object <tt>vector</tt>, one for each type
-specified on the <tt>TEMPLATE_BIND</tt> parameters, each replacing the macro <tt>T</tt>
-(specified as the first argument of <tt>TEMPLATE_BIND</tt>).
+The <tt>TOLUA_TEMPLATE_BIND</tt> directive has to be the first thing on the class declaration, otherwise it will be ignored.
+This code will create 4 versions of the class <tt>vector</tt>, one for each type
+specified on the <tt>TOLUA_TEMPLATE_BIND</tt> parameters, each replacing the macro <tt>T</tt>
+(specified as the first argument of <tt>TOLUA_TEMPLATE_BIND</tt>).
 Thus, the functions <tt>operator[]</tt>, <tt>&operator[]</tt> and <tt>push_back</tt>
 will have different signatures on each version of the object. The objects will be
 recognized as <tt>vector&lt;type&gt;</tt> on further declarations, and the name of
@@ -994,7 +1058,7 @@ inherit from another template:
 <pre>
 class hash_map : public map&lt;K,V&gt; {
 
-	TEMPLATE_BIND(K V, int string, string vector&lt;double&gt;)
+	TOLUA_TEMPLATE_BIND(K V, int string, string vector&lt;double&gt;)
 
 	V get_element(K key);
 	void set_element(K key, V value);
@@ -1026,19 +1090,19 @@ typedef vector<int> VectorInt;
 VectorInt variable;
 </pre>
 
-<tt>TEMPLATE_BIND</tt> can be used with more than one parenthesis to open and close,
-in order to be valid as a macro inside a regular .h file. The <tt>TEMPLATE_BIND</tt>
+<tt>TOLUA_TEMPLATE_BIND</tt> can be used with more than one parenthesis to open and close,
+in order to be valid as a macro inside a regular .h file. The <tt>TOLUA_TEMPLATE_BIND</tt>
 macro is declared on <tt>tolua.h</tt> as:
 <p>
-<tt>#define TEMPLATE_BIND(x)</tt>
+<tt>#define TOLUA_TEMPLATE_BIND(x)</tt>
 <p>
 
 Also, the parameters can have double quotes. Thus, the following uses are valid:
 <p>
 
 <pre>
-TEMPLATE_BIND((T, int, float)) // to be used inside a real header file
-TEMPLATE_BIND("K V", "string string", int double)
+TOLUA_TEMPLATE_BIND((T, int, float)) // to be used inside a real header file
+TOLUA_TEMPLATE_BIND("K V", "string string", int double)
 </pre>
 
 Function templates are not supported on this version.
@@ -1116,6 +1180,23 @@ the second will rename the template type hash_map&lt;string,vector&lt;double&gt;
 to StringHash. Once renamed, the Lua table for each type can be accessed only by their
 new name, for example: <tt>StringHash:new()</tt>
 
+<A NAME="additional"></A><h3>Storing additional fields</H3>
+Finally, it is important to know that even though the variables that hold
+C/C++ objects are actually tagged userdata for Lua,<B> tolua</B> creates
+a mechanism that allows us to store any additional field attached to these
+objects. That is, these objects can be seen as conventional Lua tables.
+<PRE>obj = <I>ClassName</I>:new()</PRE>
+
+<PRE>obj.myfield = 1&nbsp; -- even though &quot;myfield&quot; does not represent a field of ClassName</PRE>
+Such a construction is possible because, if needed, <B>tolua </B>automatically
+creates a Lua table and associates it with the object. So that, the object
+can store additional fields not mapped to C/C++, but actually stored in
+the conjugate table. The Lua programmer accesses the C/C++ features and
+these additional fields in an uniform way. Note that, in fact, these additional
+fields overwrite C/C++ fields or methods when the names are the same.
+
+
+
 <a name="additional_features"></a><h3>Additional features on tolua++</h3>
 
 <h4>Multiple variable declarations</h4>
@@ -1140,7 +1221,7 @@ class Widget {
 };
 </pre>
 
-This feature could be used to 'hack' the support for other unsuported things like
+This feature could be used to 'hack' the support for other unsupported things like
 <tt>operator-&gt;</tt>. Consider this example <tt>pkg</tt> file:
 
 <pre>
@@ -1166,24 +1247,25 @@ public:
 
 	// tolua_begin
 
+	#if 0
+	TOLUA_TEMPLATE_BIND(T, Vector3D)
+
+	tolua_readonly __operator_arrow @ p;
+	tolua_readonly __get_name @ name;
+	#endif
+
+
 	Node* next;
 	Node* prev;
 
 	void set_name(string p_name) {name = p_name;};
-
-	#if 0
-	tolua_readonly __operator_arrow @ p;
-	tolua_readonly __get_name @ name;
-
-	TEMPLATE_BIND(T, Vector3D)
-	#endif
 
 	Node();
 };
 // tolua_end
 </pre>
 
-While not a pretty thing to do to a header file, this acomplishes a number of
+While not a pretty thing to do to a header file, this accomplishes a number of
 things:
 <p>
 
@@ -1210,21 +1292,39 @@ unusual features such as these ones.
 
 The ability to rename functions as variables might be expanded on future versions.
 
-<A NAME="additional"></A><h3>Storing additional fields</H3>
-Finally, it is important to know that even though the variables that hold
-C/C++ objects are actually tagged userdata for Lua,<B> tolua</B> creates
-a mechanism that allows us to store any additional field attached to these
-objects. That is, these objects can be seen as conventional Lua tables.
-<PRE>obj = <I>ClassName</I>:new()</PRE>
+<h4>Defining values on command line</h4>
 
-<PRE>obj.myfield = 1&nbsp; -- even though &quot;myfield&quot; does not represent a field of ClassName</PRE>
-Such a construction is possible because, if needed, <B>tolua </B>automatically
-creates a Lua table and associates it with the object. So that, the object
-can store additional fields not mapped to C/C++, but actually stored in
-the conjugate table. The Lua programmer accesses the C/C++ features and
-these additional fields in an uniform way. Note that, in fact, these additional
-fields overwrite C/C++ fields or methods when the names are the same.
+Starting from version 1.0.92, the command line option <tt>-E</tt> allows
+you to introduce values into to the luastate where <b>tolua++</b> runs,
+similar to GCC's <tt>-D</tt>. For example:
+<p>
 
+<pre>$ tolua++ -E VERSION=5.1 -E HAVE_ZLIB package.pkg > package_bind.cpp</pre>
+
+<p>
+This will add 2 fields to the global table <tt>_extra_parameters</tt>:
+"VERSION", with the string value "5.1", and "HAVE_ZLIB" with the boolean value
+<tt>true</tt>. For the moment, there is no way to 'use' these values, except
+in custom scripts defined by the user (see
+<a href="#customizing">customizing tolua++</a> for details).
+
+<h4>Using C++ typeid</h4>
+
+Starting from version 1.0.92, the command line option <tt>-t</tt> is available,
+which generates a list of calls to the empty macro <tt>Mtolua_typeid</tt>, with its
+C++ <tt>type_info object</tt>, and the name used by tolua++ to identify the type. For example,
+if you have a package that binds 2 classes, <tt>Foo</tt> and <tt>Bar</tt>, using <tt>-t</tt>
+will produce the following output:
+
+<pre>
+#ifndef Mtolua_typeid
+#define Mtolua_typeid(L,TI,T)
+#endif
+ Mtolua_typeid(tolua_S,typeid(Foo), "Foo");
+ Mtolua_typeid(tolua_S,typeid(Bar), "Bar");
+</pre>
+
+The implementation of Mtolua_typename is left as an exercise to the user.
 
 <H3>
 <A NAME="utilities"></A>Exported utility functions</H3>
@@ -1242,6 +1342,11 @@ shown below:
 <BR><TT>&nbsp;lua_Object tolua_bnd_cast @ cast (lua_Object lo, char* type);</TT>
 
 <BR><TT>&nbsp;void tolua_bnd_inherit @ inherit (lua_Object table, lua_Object instance);</TT>
+<p>
+<TT>/* for lua 5.1 */</tt>
+<BR><TT>&nbsp;void tolua_bnd_setpeer @ setpeer (lua_Object object, lua_Object peer_table);</TT>
+<BR><TT>&nbsp;void tolua_bnd_getpeer @ getpeer (lua_Object object);</TT>
+
 <BR><TT>}</TT>
 
 <H4>
@@ -1320,6 +1425,45 @@ methods.
 inside the lua table on the field ".c_instance", and looks that up when necesary. This
 might change in the future, so it is recommended to use an alternative way to store the
 C instance to use with your own object system.
+
+<h4>tolua.setpeer (<i>object</i>, <i>peer_table</i>) (lua 5.1 only)</h4>
+
+Sets the table as the object's <i>peer</i> table (can be <tt>nil</tt>). The peer table is where all the custom
+lua fields for the object are stored. When compiled with lua 5.1, <b>tolua++</b> stores the
+peer as the object's <i>envirnment table</i>, and uses uses <tT>lua_gettable/settable</tT> (instead of
+<tt>lua_rawget/set</tt> for lua 5.0) to retrieve and store fields on it. This allows us to implement our own
+object system on our table (using metatables), and use it as a way to inherit from the userdata object.
+Consider an alternative to the previous example:
+
+<pre>
+-- a 'LuaWidget' class
+LuaWidget = {}
+LuaWidget.__index = LuaWidget
+
+function LuaWidget:add_button(caption)
+
+	-- add a button to our widget here. 'self' will be the userdata Widget
+end
+
+
+local w = Widget()
+local t = {}
+setmetatable(t, LuaWidget) -- make 't' an instance of LuaWidget
+
+tolua.setpeer(w, t) -- make 't' the peer table of 'w'
+
+set_parent(w) -- we use 'w' as the object now
+
+w:show() -- a method from 'Widget'
+w:add_button("Quit") -- a method from LuaWidget (but we still use 'w' to call it)
+</pre>
+
+When indexing our object, the peer table (if present) will be consulted first, so we
+don't need to implement our own __index metamethod to call the C++ functions.
+
+<h4>tolua.getpeer (<i>object</i>) (lua 5.1 only)</h4>
+
+Retrieves the peer table from the object (can be <tt>nil</tt>).
 
 <!--
 <H3>
@@ -1519,6 +1663,27 @@ extracs the code from files included with $cfile and $hfile (by looking for tolu
 <p>
 
 <h3><a name="compatibility"></a>Compatibility with older versions.</h3>
+
+<h4>tolua++ &lt;1.0.90</h4>
+<p>
+Version 1.0.90 of <b>tolua++</b> introduces 2 small API changes the might be incompatible
+with older versions on some cases:
+<p>
+<b>TEMPLATE_BIND</b>
+<p>
+<tt>TEMPLATE_BIND</tt> is deprecated. Use <tt>TOLUA_TEMPLATE_BIND</tt> instead. Also, when
+declaring a template, the <tt>TOLUA_TEMPLATE_BIND</tt> statement has to be the first thing
+inside the class declaration, otherwise it will be ignored. This fixes a possible problem
+with nested template declarations.
+<p>
+
+<b>Retrieving Objects</b>
+<p>
+
+When passing a full userdata to a function that accepts light userdata parameters (void*),
+the <b>tolua++</b> library function <tt>tolua_touserdata</tt> will detect the full userdata and dereference
+the void** pointer if necesary. This is a change on the function's behaviour (which used to return the pointer as-is). This allows us to pass pointers to objects to a function that accepts
+void* pointers. Note that this was a problem when switching from <b>toLua</b> version 4 to version 5 (and <b>tolua++</b> versions &lt; 1.0.90).
 
 <h4>toLua 4</h4>
 <p>
