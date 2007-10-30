@@ -197,7 +197,8 @@ function classFunction:supcode (local_constructor)
 		output(self.name,'(')
 	else
 	  if self.cast_operator then
-	  	output('static_cast<',self.mod,self.type,self.ptr,'>(*self')
+	  	--output('static_cast<',self.mod,self.type,self.ptr,'>(*self')
+		output('self->operator ',self.mod,self.type,'(')
 	  else
 		output('self->'..self.name,'(')
 	  end

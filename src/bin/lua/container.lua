@@ -615,6 +615,13 @@ function classContainer:doparse (s)
    -- try a single letter function name
    b,e,decl,arg,const = strfind(s,"^%s*([_%w])%s*(%b())%s*(c?o?n?s?t?)%s*;%s*")
   end
+  if not b then
+   -- try function pointer
+   b,e,decl,arg,const = strfind(s,"^%s*([^%(;\n]+%b())%s*(%b())%s*;%s*")
+   if b then
+    decl = string.gsub(decl, "%(%s*%*([^%)]*)%s*%)", " %1 ")
+   end
+  end
   if b then
   	if virt and string.find(virt, "[=0]") then
   		if self.flags then

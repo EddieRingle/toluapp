@@ -47,10 +47,12 @@ function classFeature:buildnames ()
  if self.name and self.name~='' then
   local n = split(self.name,'@')
   self.name = n[1]
+  self.name = string.gsub(self.name, ":%d*$", "")
   if not n[2] then
    n[2] = applyrenaming(n[1])
   end
   self.lname = n[2] or gsub(n[1],"%[.-%]","")
+  self.lname = string.gsub(self.lname, ":%d*$", "")
   self.original_name = self.name
   self.lname = clean_template(self.lname)
  end

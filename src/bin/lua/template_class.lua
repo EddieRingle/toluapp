@@ -12,7 +12,7 @@ classTemplateClass = {
 classTemplateClass.__index = classTemplateClass
 
 
-function classTemplateClass:throw(types)
+function classTemplateClass:throw(types, local_scope)
 
 	if table.getn(types) ~= table.getn(self.args) then
 		error("#invalid parameter count")
@@ -42,12 +42,17 @@ function classTemplateClass:throw(types)
 			pI[i] = resolve_template_types(pI[i])
 		end
 		bI = string.gsub(bI, ">>", "> >")
-		Class(self.name..append, pI, bI)
+		local n = self.name
+		if local_scope then
+			n = self.local_name
+		end
+
+		Class(n..append, pI, bI)
 	end
 end
 
 
-function TemplateClass(name, parents, body, parameters, register)
+function TemplateClass(name, parents, body, parameters)
 
 	local o = {
 	
@@ -60,14 +65,14 @@ function TemplateClass(name, parents, body, parameters, register)
 	oname = getnamespace(classContainer.curr)..oname
 	o.name = oname
 
+	o.local_name = name
+	
 	setmetatable(o, classTemplateClass)
 
-	if register then
-		if _global_templates[oname] then
-			warning("Duplicate declaration of template "..oname)
-		else
-			_global_templates[oname] = o
-		end
+	if _global_templates[oname] then
+		warning("Duplicate declaration of template "..oname)
+	else
+		_global_templates[oname] = o
 	end
 
 	return o
