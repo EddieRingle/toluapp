@@ -161,11 +161,12 @@ function Class (n,p,b)
 			
 		local Tl = split(T, " ")
 		local tc = TemplateClass(n, p, bs, Tl)
+
 		
-		for i=1,types.n do
-		
-			tc:throw(split_c_tokens(types[i], " "), true)
-		end
+		tc:throw(types, true)
+		--for i=1,types.n do
+		--	tc:throw(split_c_tokens(types[i], " "), true)
+		--end
 		return
 	end
 	

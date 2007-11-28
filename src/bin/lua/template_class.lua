@@ -14,14 +14,17 @@ classTemplateClass.__index = classTemplateClass
 
 function classTemplateClass:throw(types, local_scope)
 
-	if table.getn(types) ~= table.getn(self.args) then
-		error("#invalid parameter count")
-	end
+	--if table.getn(types) ~= table.getn(self.args) then
+	--	error("#invalid parameter count")
+	--end
 
 	-- replace
 	for i =1 , types.n do
 
 		local Il = split_c_tokens(types[i], " ")
+		if table.getn(Il) ~= table.getn(self.args) then
+			error("#invalid parameter count for "..types[i])
+		end
 		local bI = self.body
 		local pI = {}
 		for j = 1,self.args.n do
