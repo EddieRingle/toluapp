@@ -241,8 +241,9 @@ function classDeclaration:builddeclaration (narg, cplusplus)
  local array = self.dim ~= '' and tonumber(self.dim)==nil
 	local line = ""
  local ptr = ''
-	local mod
-	local type = self.type
+ local mod
+ local type = self.type
+ local nctype = gsub(self.type,'const%s+','')
  if self.dim ~= '' then
 	 type = gsub(self.type,'const%s+','')  -- eliminates const modifier for arrays
  end
@@ -257,7 +258,7 @@ function classDeclaration:builddeclaration (narg, cplusplus)
    line = concatparam(line,'[',self.dim,'];')
   else
 	if cplusplus then
-		line = concatparam(line,' = Mtolua_new(',type,ptr,'['..self.dim..']);')
+		line = concatparam(line,' = Mtolua_new((',type,ptr,')['..self.dim..']);')
 	else
 		line = concatparam(line,' = (',type,ptr,'*)',
 		'malloc((',self.dim,')*sizeof(',type,ptr,'));')
@@ -279,9 +280,9 @@ function classDeclaration:builddeclaration (narg, cplusplus)
 		line = concatparam(line,'*')
 	end
 	line = concatparam(line,') ')
-			if isenum(type) then
-			line = concatparam(line,'(int) ')
-			end
+	if isenum(nctype) then
+		line = concatparam(line,'(int) ')
+	end
 	local def = 0
 	if self.def ~= '' then
 		def = self.def
@@ -368,7 +369,7 @@ function classDeclaration:setarray (narg)
    if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
-     output('    void* tolua_obj = Mtolua_new(',type,'(',self.name,'[i]));')
+     output('    void* tolua_obj = Mtolua_new((',type,')(',self.name,'[i]));')
      output('    tolua_pushfieldusertype_and_takeownership(tolua_S,',narg,',i+1,tolua_obj,"',type,'");')
      output('#else\n')
      output('    void* tolua_obj = tolua_copy(tolua_S,(void*)&',self.name,'[i],sizeof(',type,'));')

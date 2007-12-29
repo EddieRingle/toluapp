@@ -185,7 +185,7 @@ function classFunction:supcode (local_constructor)
    output('  ')
   end
   if class and self.name=='new' then
-   output('Mtolua_new(',self.type,'(')
+   output('Mtolua_new((',self.type,')(')
   elseif class and static then
 	if out then
 		output(self.name,'(')
@@ -254,7 +254,7 @@ function classFunction:supcode (local_constructor)
     if self.ptr == '' then
      output('   {')
      output('#ifdef __cplusplus\n')
-     output('    void* tolua_obj = Mtolua_new(',new_t,'(tolua_ret));')
+     output('    void* tolua_obj = Mtolua_new((',new_t,')(tolua_ret));')
      output('    ',push_func,'(tolua_S,tolua_obj,"',t,'");')
      output('    tolua_register_gc(tolua_S,lua_gettop(tolua_S));')
      output('#else\n')
