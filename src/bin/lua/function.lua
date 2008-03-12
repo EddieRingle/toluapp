@@ -166,6 +166,8 @@ function classFunction:supcode (local_constructor)
   end
  end
 
+ pre_call_hook(self)
+
  local out = string.find(self.mod, "tolua_outside")
  -- call function
  if class and self.name=='delete' then
@@ -197,7 +199,7 @@ function classFunction:supcode (local_constructor)
 		output(self.name,'(')
 	else
 	  if self.cast_operator then
-	  	--output('static_cast<',self.mod,self.type,self.ptr,'>(*self')
+	  	--output('static_cast<',self.mod,self.type,self.ptr,' >(*self')
 		output('self->operator ',self.mod,self.type,'(')
 	  else
 		output('self->'..self.name,'(')
@@ -300,6 +302,8 @@ function classFunction:supcode (local_constructor)
    end
   end
  end
+
+ post_call_hook(self)
 
  output(' }')
  output(' return '..nret..';')

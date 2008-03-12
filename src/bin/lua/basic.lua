@@ -354,6 +354,16 @@ function parser_hook(s)
 	return nil
 end
 
+-- called from classFunction:supcode, before the call to the function is output
+function pre_call_hook(f)
+
+end
+
+-- called from classFunction:supcode, after the call to the function is output
+function post_call_hook(f)
+
+end
+
 -- custom pushers
 
 _push_functions = {}
