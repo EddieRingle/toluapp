@@ -364,6 +364,11 @@ function post_call_hook(f)
 
 end
 
+-- called before the register code is output
+function pre_register_hook(package)
+
+end
+
 -- custom pushers
 
 _push_functions = {}

@@ -738,7 +738,7 @@ function classContainer:doparse (s)
 
  -- try array
  do
-  local b,e,decl = strfind(s,"^%s*([_%w][][_@%s%w%d%*&:]*[]_%w%d])%s*;%s*")
+  local b,e,decl = strfind(s,"^%s*([_%w][][_@%s%w%d%*&:<>]*[]_%w%d])%s*;%s*")
   if b then
    _curr_code = strsub(s,b,e)
    Array(decl)
