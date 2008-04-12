@@ -68,6 +68,9 @@ function doit ()
 	if flags.P then
 		p:print()
 	else
+		push(p)
+		pre_output_hook(p)
+		pop()
 		p:preamble()
 		p:supcode()
 		push(p)

@@ -333,6 +333,10 @@ function preparse_hook(package)
 
 end
 
+-- called before starting output
+function pre_output_hook(package)
+
+end
 
 -- called after writing all the output.
 -- takes the Package object

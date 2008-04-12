@@ -163,6 +163,10 @@ TOLUA_API int tolua_fast_isa(lua_State *L, int mt_indexa, int mt_indexb, int sup
 #define Mtolua_delete(EXP) delete EXP
 #endif
 
+#ifndef Mtolua_new_dim
+#define Mtolua_new_dim(EXP, len) new EXP[len]
+#endif
+
 #ifndef Mtolua_delete_dim
 #define Mtolua_delete_dim(EXP) delete [] EXP
 #endif

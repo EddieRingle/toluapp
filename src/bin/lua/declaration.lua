@@ -258,7 +258,7 @@ function classDeclaration:builddeclaration (narg, cplusplus)
    line = concatparam(line,'[',self.dim,'];')
   else
 	if cplusplus then
-		line = concatparam(line,' = Mtolua_new((',type,ptr,')['..self.dim..']);')
+		line = concatparam(line,' = Mtolua_new_dim(',type,ptr,', '..self.dim..');')
 	else
 		line = concatparam(line,' = (',type,ptr,'*)',
 		'malloc((',self.dim,')*sizeof(',type,ptr,'));')
