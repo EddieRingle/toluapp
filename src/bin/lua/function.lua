@@ -239,7 +239,7 @@ function classFunction:supcode (local_constructor)
   if self.type ~= '' and self.type ~= 'void' then
    nret = nret + 1
    local t,ct = isbasic(self.type)
-   if t then
+   if t and self.name ~= "new" then
    	if self.cast_operator and _basic_raw_push[t] then
 		output('   ',_basic_raw_push[t],'(tolua_S,(',ct,')tolua_ret);')
    	else
