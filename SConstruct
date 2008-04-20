@@ -29,6 +29,7 @@ opts.Add('prefix', 'The installation prefix')
 opts.Add('build_dev', 'Build for development (uses tolua to rebuild toluabind.c with the embeded scripts', 0)
 opts.Add('build_failsafe', "Build using 'factory default' toluabind file (in case build_dev fails)", 0)
 opts.Add('ENV', 'The environment variables')
+opts.Add('shared', 'Build a shared object', False)
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
 
@@ -149,8 +150,9 @@ import string
 
 Export('env')
 
-SConscript('src/bin/SCsub')
 SConscript('src/lib/SCsub')
+SConscript('src/bin/SCsub')
+#SConscript('src/lib/SCsub')
 SConscript('src/tests/SCsub')
 
 env.Alias('all', [env.bin_target, env.lib_target])
