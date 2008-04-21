@@ -1,6 +1,11 @@
 import sys;
 import os
-env = Environment()
+
+tools = ['default']
+if os.name == 'nt':
+	tools = ['mingw']
+
+env = Environment(tools = tools)
 
 options_file = None
 if sys.platform == 'linux2':
@@ -39,7 +44,7 @@ def save_config(target, source, env):
 cust = env.Command('custom.py', [], save_config)
 env.Alias('configure', [cust])
 
-env['TOLUAPP_BOOTSTRAP'] = env['tolua_bin']+"_bootstrap"
+env['TOLUAPP_BOOTSTRAP'] = env['tolua_bin']+"_bootstrap"+env['PROGSUFFIX']
 
 env['build_dev'] = int(env['build_dev'])
 
@@ -79,10 +84,11 @@ def make_tolua_code(self, target, source, pkgname = None, bootstrap = False, use
 
 	tolua = ""
 	if bootstrap:
-		if 'msvc' in self['TOOLS']:
-			tolua = 'bin\\$TOLUAPP_BOOTSTRAP'
+		if os.name == 'nt':
+			tolua = 'bin\\'+self['TOLUAPP_BOOTSTRAP']
 		else:
-			tolua = 'bin/$TOLUAPP_BOOTSTRAP'
+			tolua = 'bin/'+self['TOLUAPP_BOOTSTRAP']
+		print("********* tolua is ", tolua)
 	else:
 		if use_own:
 			if 'msvc' in self['TOOLS']:
