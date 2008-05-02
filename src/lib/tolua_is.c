@@ -85,7 +85,7 @@ TOLUA_API const char* tolua_typename (lua_State* L, int lo)
 	return lua_tostring(L,-1);
 }
 
-TOLUA_API void tolua_error (lua_State* L, char* msg, tolua_Error* err)
+TOLUA_API void tolua_error (lua_State* L, const char* msg, tolua_Error* err)
 {
 	if (msg[0] == '#')
 	{
@@ -116,7 +116,7 @@ TOLUA_API void tolua_error (lua_State* L, char* msg, tolua_Error* err)
 }
 
 /* the equivalent of lua_is* for usertable */
-static  int lua_isusertable (lua_State* L, int lo, const char* type)
+static  int lua_isusertable (lua_State* L, int lo, const const char* type)
 {
 	int r = 0;
 	if (lo < 0) lo = lua_gettop(L)+lo+1;
