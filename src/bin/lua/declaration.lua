@@ -139,9 +139,11 @@ function resolve_template_types(type)
 		m = split_c_tokens(string.sub(m, 2, -2), ",")
 		for i=1, table.getn(m) do
 			m[i] = string.gsub(m[i],"%s*([%*&])", "%1")
-			if not isenum(m[i]) then _, m[i] = applytypedef("", m[i]) end
-			m[i] = findtype(m[i]) or m[i]
-			m[i] = resolve_template_types(m[i])
+			if not isbasic(m[i]) then
+				if not isenum(m[i]) then _, m[i] = applytypedef("", m[i]) end
+				m[i] = findtype(m[i]) or m[i]
+				m[i] = resolve_template_types(m[i])
+			end
 		end
 
 		local b,i
