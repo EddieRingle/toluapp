@@ -209,7 +209,7 @@ function classVariable:supcode ()
 		local def = 0
 		if self.def ~= '' then def = self.def end
 		if self.type == 'char*' and self.dim ~= '' then -- is string
-		 output(' strncpy(')
+			output(' strncpy((char*)')
 			if class and static then
 				output(self.parent.type..'::'..self.name)
 			elseif class then
@@ -217,7 +217,7 @@ function classVariable:supcode ()
 			else
 				output(self.name)
 			end
-			output(',tolua_tostring(tolua_S,2,',def,'),',self.dim,'-1);')
+			output(',(const char*)tolua_tostring(tolua_S,2,',def,'),',self.dim,'-1);')
 		else
 			local ptr = ''
 			if self.ptr~='' then ptr = '*' end
