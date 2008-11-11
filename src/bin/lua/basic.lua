@@ -373,6 +373,11 @@ function pre_register_hook(package)
 
 end
 
+-- called to output an error message
+function output_error_hook(...)
+	return string.format(...)
+end
+
 -- custom pushers
 
 _push_functions = {}

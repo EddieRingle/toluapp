@@ -151,7 +151,7 @@ function classFunction:supcode (local_constructor)
  -- check self
  if class and self.name~='new' and static==nil then
 	 output('#ifndef TOLUA_RELEASE\n')
-  output('  if (!self) tolua_error(tolua_S,"invalid \'self\' in function \''..self.name..'\'",NULL);');
+	 output('  if (!self) tolua_error(tolua_S,"'..output_error_hook("invalid \'self\' in function \'%s\'", self.name)..'", NULL);');
 	 output('#endif\n')
  end
 
@@ -313,7 +313,7 @@ function classFunction:supcode (local_constructor)
 
 		output('#ifndef TOLUA_RELEASE\n')
 		output('tolua_lerror:\n')
-		output(' tolua_error(tolua_S,"#ferror in function \''..self.lname..'\'.",&tolua_err);')
+		output(' tolua_error(tolua_S,"'..output_error_hook("#ferror in function \'%s\'.", self.lname)..'",&tolua_err);')
 		output(' return 0;')
 		output('#endif\n')
 	else
@@ -500,7 +500,7 @@ function Function (d,a,c)
 		ns = "("..string.gsub(ns, "%s*,%s*$", "")..')'
 		--ns = strip_defaults(ns)
 
-		Function(d, ns, c)
+		local f = Function(d, ns, c)
 		for i=1,last do
 			t[i] = string.gsub(t[i], "=.*$", "")
 		end
