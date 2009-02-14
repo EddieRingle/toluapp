@@ -520,7 +520,6 @@ static void push_collector(lua_State* L, const char* type, lua_CFunction col) {
 */
 TOLUA_API void tolua_cclass (lua_State* L, const char* lname, const char* name, const char* base, lua_CFunction col)
 {
-//printf("class %s\n", name);
 	char cname[128] = "const ";
 	char cbase[128] = "const ";
 	strncat(cname,name,120);
@@ -580,7 +579,6 @@ TOLUA_API void tolua_addbase(lua_State* L, char* name, char* base) {
 */
 TOLUA_API void tolua_function (lua_State* L, const char* name, lua_CFunction func)
 {
-//printf("function %s\n", name);
  lua_pushstring(L,name);
  lua_pushcfunction(L,func);
 	lua_rawset(L,-3);
@@ -604,7 +602,6 @@ TOLUA_API void tolua_set_call_event(lua_State* L, lua_CFunction func, char* type
 */
 TOLUA_API void tolua_constant (lua_State* L, const char* name, lua_Number value)
 {
-//printf("constant %s\n", name);
 	lua_pushstring(L,name);
 	tolua_pushnumber(L,value);
 	lua_rawset(L,-3);
@@ -616,7 +613,6 @@ TOLUA_API void tolua_constant (lua_State* L, const char* name, lua_Number value)
 */
 TOLUA_API void tolua_variable (lua_State* L, const char* name, lua_CFunction get, lua_CFunction set)
 {
-//printf("variable %s\n", name);
 	/* get func */
 	lua_pushstring(L,".get");
 	lua_rawget(L,-2);
