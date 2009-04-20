@@ -70,16 +70,24 @@ function classVariable:isvariable ()
 end
 
 -- get variable value
-function classVariable:getvalue (class,static, prop_get)
+function classVariable:getvalue(class,static, prop_get, outside)
 
 	local name
 	if prop_get then
 
-		name = prop_get.."()"
+		if outside then
+			name = prop_get.."(this)"
+		else
+			name = prop_get.."()"
+		end
 	else
 		name = self.name
 	end
 
+	if outside then
+		return name
+	end
+	
 	if class and static then
 	 return self.parent.type..'::'..name
 	elseif class then
@@ -105,13 +113,14 @@ function classVariable:supcode ()
 
  local class = self:inclass()
 
-	local prop_get,prop_set
+	local prop_get,prop_set,outside
 	if string.find(self.mod, 'tolua_property') then
 
 		local _,_,type = string.find(self.mod, "tolua_property__([^%s]*)")
 		type = type or "default"
 		prop_get,prop_set = get_property_methods(type, self.name)
 		self.mod = string.gsub(self.mod, "tolua_property[^%s]*", "")
+		outside = string.find(self.mod, "tolua_outside")
 	end
 
  -- get function ------------------------------------------------
@@ -155,14 +164,14 @@ function classVariable:supcode ()
  else
 	local t,ct = isbasic(self.type)
 	if t then
-		output('  tolua_push'..t..'(tolua_S,(',ct,')'..self:getvalue(class,static,prop_get)..');')
+		output('  tolua_push'..t..'(tolua_S,(',ct,')'..self:getvalue(class,static,prop_get,outside)..');')
 	else
 		local push_func = get_push_function(self.type)
 		t = self.type
 		if self.ptr == '&' or self.ptr == '' then
-			output('  ',push_func,'(tolua_S,(void*)&'..self:getvalue(class,static,prop_get)..',"',t,'");')
+			output('  ',push_func,'(tolua_S,(void*)&'..self:getvalue(class,static,prop_get,outside)..',"',t,'");')
 		else
-			output('  ',push_func,'(tolua_S,(void*)'..self:getvalue(class,static,prop_get)..',"',t,'");')
+			output('  ',push_func,'(tolua_S,(void*)'..self:getvalue(class,static,prop_get,outside)..',"',t,'");')
 		end
 	end
  end
@@ -223,7 +232,9 @@ function classVariable:supcode ()
 			if self.ptr~='' then ptr = '*' end
 			output(' ')
 			local name = prop_set or self.name
-			if class and static then
+			if prop_set and outside then
+				output(prop_set)
+			elseif class and static then
 				output(self.parent.type..'::'..name)
 			elseif class then
 				output('self->'..name)
@@ -233,6 +244,9 @@ function classVariable:supcode ()
 			local t = isbasic(self.type)
 			if prop_set then
 				output('(')
+				if outside then
+					output('this, ')
+				end
 			else
 				output(' = ')
 			end
