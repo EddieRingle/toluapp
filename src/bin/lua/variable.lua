@@ -76,7 +76,7 @@ function classVariable:getvalue(class,static, prop_get, outside)
 	if prop_get then
 
 		if outside then
-			name = prop_get.."(this)"
+			name = prop_get.."(self)"
 		else
 			name = prop_get.."()"
 		end
